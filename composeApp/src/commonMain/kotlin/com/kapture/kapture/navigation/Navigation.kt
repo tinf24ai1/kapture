@@ -20,7 +20,7 @@ enum class NavigationIndex(val index: Int) {
     HOME_SCREEN(0),
     ARCHIVE_SCREEN(1);
 
-    companion object {
+    companion object Convert {
         fun fromIndex(index: Int): NavigationIndex {
             return entries.firstOrNull { it.index == index } ?: HOME_SCREEN
         }

@@ -37,26 +37,26 @@ fun BottomNavigationBar() {
         bottomBar = {
             NavigationBar {
                 Navigation.navigationItems().forEachIndexed {
-                        index, item ->
-                    NavigationBarItem(
-                        selected = (index == selectedItem.index),
-                        label = {
-                            Text(item.name)
-                        },
-                        icon = {
-                            Icon(item.icon, item.name)
-                        },
-                        onClick = {
-                            selectedItem = NavigationIndex.fromIndex(index)
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                    index, item ->
+                        NavigationBarItem(
+                            selected = (index == selectedItem.index),
+                            label = {
+                                Text(item.name)
+                            },
+                            icon = {
+                                Icon(item.icon, item.name)
+                            },
+                            onClick = {
+                                selectedItem = NavigationIndex.fromIndex(index)
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
                 }
             }
         }
