@@ -1,15 +1,12 @@
 package com.kapture.kapture.storage
 
-import com.russhwolf.settings.Settings
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.datetime.Instant
-import com.kapture.kapture.logger.Logger
+
+
+import com.kapture.kapture.storage.LocalStorage
 
 class MinHeap {
-    private val items = mutableListOf<Item>()
-    private val settings = Settings()
+    val items = mutableListOf<Item>()
+    val localStorage = LocalStorage()
 
     val size: Int get() = items.size
     fun isEmpty() = items.isEmpty()
@@ -18,7 +15,7 @@ class MinHeap {
     fun add(item: Item) {
         items.add(item)
         heapifyUp(items.lastIndex)
-        saveToStorage()
+        localStorage.save("MinHeap",this.items)
     }
 
     fun poll(): Item? {
@@ -29,7 +26,7 @@ class MinHeap {
             items[0] = last
             heapifyDown(0)
         }
-        saveToStorage()
+        localStorage.save("MinHeap",this.items)
         return root
     }
 
@@ -68,17 +65,8 @@ class MinHeap {
         this[b] = temp
     }
 
-    fun restoreFromStorage() {
-        val json = settings.getStringOrNull("heap_items") ?: return
-        val restored = Json.decodeFromString<List<Item>>(json)
+    fun clear() {
         items.clear()
-        items.addAll(restored)
-        Logger.d("MinHeap", "Restored ${items.size} items from storage")
     }
 
-    private fun saveToStorage() {
-        val json = Json.encodeToString(items)
-        settings.putString("heap_items", json)
-        Logger.d("MinHeap", "Saved ${items.size} items to storage")
-    }
 }
