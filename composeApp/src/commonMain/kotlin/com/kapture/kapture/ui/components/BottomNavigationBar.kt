@@ -24,7 +24,10 @@ import com.kapture.kapture.ui.screens.ArchiveScreen
 import com.kapture.kapture.ui.screens.HomeScreen
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(
+    onRefreshFabClick: () -> Unit = {},
+    onAddFabClick: () -> Unit = {},
+    ) {
 
     var selectedItem by remember {
         mutableStateOf(NavigationIndex.HOME_SCREEN)
@@ -68,7 +71,9 @@ fun BottomNavigationBar() {
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(
+                    onRefreshFabClick = onRefreshFabClick,
+                    onAddFabClick = onAddFabClick,)
             }
             composable(Screen.Archive.route) {
                 ArchiveScreen()

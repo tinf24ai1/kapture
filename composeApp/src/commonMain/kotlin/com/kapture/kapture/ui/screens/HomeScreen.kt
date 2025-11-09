@@ -20,9 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.ui.components.InputDialog
+import com.kapture.kapture.notifications.*
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onRefreshFabClick: () -> Unit = {},
+    onAddFabClick: () -> Unit = {},
+) {
+    val notificationService = remember { NotificationService() }
+    val notificationVm = remember { AppViewModel(notificationService) }
 
     var showDialog by remember {
         mutableStateOf(false)
@@ -39,25 +47,30 @@ fun HomeScreen() {
 
     Surface(
         modifier = Modifier.fillMaxSize()
-    ) {
+    )
+    {
         Box {
             Row(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+
                 FloatingActionButton(
-                    onClick = {
-                    },
+                    onClick = {onRefreshFabClick() },
                 ) {
                     Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
                 }
                 FloatingActionButton(
                     onClick = {
+                        onAddFabClick()
                         showDialog = !showDialog
                     },
                 ) {
                     Icon(Icons.Rounded.Add, Icons.Rounded.Add::class.qualifiedName)
                 }
+
+
+
             }
         }
     }

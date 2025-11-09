@@ -7,8 +7,14 @@ import com.kapture.kapture.ui.components.BottomNavigationBar
 
 @Composable
 @Preview
-fun App() {
+fun App(
+    onRefreshFabClick: () -> Unit = {},
+    onAddFabClick: () -> Unit = {},
+) {
     MaterialTheme {
-        BottomNavigationBar()
+        BottomNavigationBar(
+            onRefreshFabClick = onRefreshFabClick,
+            onAddFabClick = onAddFabClick,
+        )
     }
 }
