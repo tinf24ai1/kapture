@@ -1,12 +1,9 @@
 package com.kapture.kapture.storage
 
-
-
 import com.kapture.kapture.storage.LocalStorage
 
 class MinHeap {
     val items = mutableListOf<Item>()
-    val localStorage = LocalStorage()
 
     val size: Int get() = items.size
     fun isEmpty() = items.isEmpty()
@@ -15,7 +12,7 @@ class MinHeap {
     fun add(item: Item) {
         items.add(item)
         heapifyUp(items.lastIndex)
-        localStorage.save("MinHeap",this.items)
+        LocalStorage.save("MinHeap",this.items)
     }
 
     fun poll(): Item? {
@@ -26,7 +23,7 @@ class MinHeap {
             items[0] = last
             heapifyDown(0)
         }
-        localStorage.save("MinHeap",this.items)
+        LocalStorage.save("MinHeap",this.items)
         return root
     }
 
@@ -68,5 +65,4 @@ class MinHeap {
     fun clear() {
         items.clear()
     }
-
 }
