@@ -9,13 +9,18 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.kapture.kapture.logger.Logger
 
 actual class NotificationService actual constructor() {
 
     private var appContext: Context? = null
+    private val TAG = "Notifications"
 
     actual fun showNotification(title: String, message: String?) {
-        val ctx = appContext ?: return
+        val ctx = appContext
+        if (ctx == null) {
+            return
+        }
         ensureChannel(ctx)
 
         val notification = NotificationCompat.Builder(ctx, CHANNEL_ID)
@@ -42,9 +47,11 @@ actual class NotificationService actual constructor() {
             ) == PackageManager.PERMISSION_GRANTED
 
             if (granted) {
+                Logger.i(TAG, "Android permission already granted")
                 NotificationStateEvent.send(NotificationPermissionType.GRANTED)
                 onFinished(true)
             } else {
+                Logger.i(TAG, "Requesting Android POST_NOTIFICATIONS permission (SDK>=33)")
                 ActivityCompat.requestPermissions(
                     act,
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
@@ -60,7 +67,8 @@ actual class NotificationService actual constructor() {
 
     actual suspend fun areNotificationsEnabled(): Boolean {
         val ctx = appContext ?: return false
-        return NotificationManagerCompat.from(ctx).areNotificationsEnabled()
+        val enabled = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
+        return enabled
     }
 
     actual companion object {

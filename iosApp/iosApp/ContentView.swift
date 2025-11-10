@@ -26,5 +26,17 @@ struct ContentView: View {
     }
 }
 
+App(
+    onRefreshFabClick: {
+        notifVM.askNotificationPermission(activity: nil)
+        vm.sendWithPermission(
+            activity: nil,
+            title: "Test",
+            message: "Test Test Test"
+        )
+    },
+    onAddFabClick: { /* unverändert */ }
+)
+
 
 

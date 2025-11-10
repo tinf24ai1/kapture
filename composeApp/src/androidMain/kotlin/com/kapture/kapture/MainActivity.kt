@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import android.content.pm.PackageManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.notifications.NotificationStateEvent
 import com.kapture.kapture.notifications.NotificationPermissionType
 import com.kapture.kapture.notifications.NotificationService
@@ -27,10 +28,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             App(
                 onRefreshFabClick = {
-                    // 1) Permission sicherstellen (liefert auch AppContext für Android)
-                    notificationVm.askNotificationPermission(PlatformActivity(this))
-                    // 2) Sofort Notification zeigen
-                    notificationVm.showNotification()
+                    notificationVm.sendWithPermission(
+                        activity = PlatformActivity(this),
+                        title = "Test",
+                        message = "Test Test Test"
+                    )
                 }
             )
         }
@@ -45,6 +47,9 @@ class MainActivity : ComponentActivity() {
         if (requestCode == NotificationService.REQUEST_CODE_NOTIFICATIONS) {
             val granted = grantResults.isNotEmpty() &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
+            Logger.i("Notifications", "Android user answered permission: granted=$granted")
+
+
             NotificationStateEvent.send(
                 if (granted) NotificationPermissionType.GRANTED
                         else NotificationPermissionType.DENIED
