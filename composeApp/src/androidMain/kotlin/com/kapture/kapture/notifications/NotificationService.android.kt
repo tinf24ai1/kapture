@@ -10,7 +10,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kapture.kapture.logger.Logger
+import android.app.PendingIntent
+import android.content.Intent
+import com.kapture.kapture.MainActivity
 
+//Android implementation of NotificationService using NotificationCompat and runtime permission
 actual class NotificationService actual constructor() {
 
     private var appContext: Context? = null
@@ -26,14 +30,28 @@ actual class NotificationService actual constructor() {
         var id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
         Logger.i(TAG, "Posting Android notification id=$id title=\"$title\"")
 
+        // Intent to open MainActivity when tapping banner
+        val openIntent = Intent(ctx, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra("from_notification", true) // for future deep-link handling
+        }
+
+        val flags = (PendingIntent.FLAG_UPDATE_CURRENT) or
+                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+
+        val contentPendingIntent = PendingIntent.getActivity(
+            ctx, /*requestCode=*/ id, openIntent, flags
+        )
+
         val notification = NotificationCompat.Builder(ctx, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(message ?: "")
             .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)       // <- wichtig für < API 26
-            .setDefaults(NotificationCompat.DEFAULT_ALL)         // Sound/Vibration/Lights nach User-Settings
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)    // optional, hilft bei Heads-Up
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setContentIntent(contentPendingIntent)
             .build()
 
         NotificationManagerCompat.from(ctx).notify(id, notification)
@@ -63,7 +81,7 @@ actual class NotificationService actual constructor() {
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                     REQUEST_CODE
                 )
-                // Ergebnis kommt in MainActivity.onRequestPermissionsResult
+                // Result via MainActivity.onRequestPermissionsResult
             }
         } else {
             NotificationStateEvent.send(NotificationPermissionType.GRANTED)
@@ -82,6 +100,7 @@ actual class NotificationService actual constructor() {
         private const val REQUEST_CODE = 1001
         private const val CHANNEL_ID = "default_high"
 
+        //Create high-importance channel
         private fun ensureChannel(ctx: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -4,7 +4,7 @@ import com.kapture.kapture.logger.Logger
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
-// Kleiner Event-Bus: ViewModel kann Permission-Änderungen reaktiv beobachten
+// Event bus for permission state changes
 object NotificationStateEvent {
     private const val TAG = "Notifications"
 

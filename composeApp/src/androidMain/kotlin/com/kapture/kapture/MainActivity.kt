@@ -10,12 +10,15 @@ import android.content.pm.PackageManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.notifications.NotificationStateEvent
 import com.kapture.kapture.notifications.NotificationPermissionType
 import com.kapture.kapture.notifications.NotificationService
 import com.kapture.kapture.notifications.AppViewModel
 import com.kapture.kapture.notifications.PlatformActivity
+import com.kapture.kapture.settings.AndroidContextHolder
 
 class MainActivity : ComponentActivity() {
 
@@ -26,9 +29,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        AndroidContextHolder.appContext = applicationContext
+
         setContent {
 
-            // Option A: bei JEDEM Start Permission-Check anstoßen (Dialog erscheint nur 1x systemseitig)
+            // Ask permission on startup
             LaunchedEffect(Unit) {
                 notificationVm.askNotificationPermission(
                     activity = PlatformActivity(this@MainActivity),
@@ -36,18 +41,17 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
+            // Collect Dialog-Flag from ViewModel
+            val showDenied by notificationVm.showDeniedDialog.collectAsState(initial = false)
+
             App(
-                onRefreshFabClick = {
-                    notificationVm.sendWithPermission(
-                        activity = PlatformActivity(this),
-                        title = "Test",
-                        message = "Test Test Test"
-                    )
-                }
+                showPermissionHintDialog = showDenied,
+                onDismissPermissionHint = { notificationVm.dismissDeniedDialog() },
             )
         }
     }
 
+    //Forward Android's permission to shared event bus
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

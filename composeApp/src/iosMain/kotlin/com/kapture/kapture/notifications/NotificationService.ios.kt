@@ -7,6 +7,8 @@ import platform.Foundation.NSDate
 import platform.Foundation.timeIntervalSince1970
 import platform.UserNotifications.*
 
+//iOS implementation using UNUserNotificationCenter
+//iOS handles scheduling and delivery in background and after termination
 actual class NotificationService actual constructor() {
 
     private val TAG = "Notifications"
@@ -36,6 +38,7 @@ actual class NotificationService actual constructor() {
     }
 
     actual suspend fun areNotificationsEnabled(): Boolean =
+        // Translate Apple's async callback into a suspending call (no blocking).
         suspendCancellableCoroutine { cont ->
             UNUserNotificationCenter.currentNotificationCenter()
                 .getNotificationSettingsWithCompletionHandler { settings ->
@@ -47,6 +50,7 @@ actual class NotificationService actual constructor() {
                 }
         }
 
+    // Send soon helper with calendar based trigger for scheduling
     private fun scheduleInternal(id: String, title: String, body: String, seconds: Double) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)

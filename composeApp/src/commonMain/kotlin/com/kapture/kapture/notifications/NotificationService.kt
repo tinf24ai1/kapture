@@ -1,21 +1,22 @@
 package com.kapture.kapture.notifications
 
-// Vertrag (wie im KMP-Bits-Guide): gleiche Signaturen auf beiden Plattformen
+//Crossplatfrom notification contract
 expect class NotificationService() {
 
     fun showNotification(
         title: String,
         message: String? = null
     )
-
+// Request permission. Android needs Activity for runtime permission
     fun requestPermission(
-        activity: PlatformActivity?,           // Android braucht Activity, iOS ignoriert
-        onFinished: (Boolean) -> Unit = {}     // Callback für "granted?" (einfach gehalten)
+        activity: PlatformActivity?,
+        onFinished: (Boolean) -> Unit = {}
     )
 
     suspend fun areNotificationsEnabled(): Boolean
 
     companion object {
-        val REQUEST_CODE_NOTIFICATIONS: Int    // Android: für onRequestPermissionsResult
+        //Request code for permission callback (Android)
+        val REQUEST_CODE_NOTIFICATIONS: Int
     }
 }

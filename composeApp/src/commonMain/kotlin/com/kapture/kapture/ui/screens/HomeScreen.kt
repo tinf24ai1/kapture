@@ -25,10 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun HomeScreen(
-    onRefreshFabClick: () -> Unit = {},
-    onAddFabClick: () -> Unit = {},
-) {
+fun HomeScreen()
+{
     val notificationService = remember { NotificationService() }
     val notificationVm = remember { AppViewModel(notificationService) }
 
@@ -56,13 +54,12 @@ fun HomeScreen(
             ) {
 
                 FloatingActionButton(
-                    onClick = {onRefreshFabClick() },
+                    onClick = {},
                 ) {
                     Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
                 }
                 FloatingActionButton(
                     onClick = {
-                        onAddFabClick()
                         showDialog = !showDialog
                     },
                 ) {
