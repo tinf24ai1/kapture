@@ -48,6 +48,21 @@ class AppViewModel(
         }
     }
 
+
+    /**
+     * Option A: bei jedem Appstart aufrufen (Dialog erscheint nur beim allerersten Mal systemseitig).
+     * source ist optional für Logs ("startup" | "manual" ...).
+     */
+    fun askNotificationPermission(activity: PlatformActivity?, source: String = "manual") {
+        Logger.i(TAG, "Requesting notification permission (source=$source)...")
+        notificationService.requestPermission(activity) { granted ->
+            Logger.i(TAG, "Permission callback result (source=$source): granted=$granted")
+            NotificationStateEvent.send(
+                if (granted) NotificationPermissionType.GRANTED else NotificationPermissionType.DENIED
+            )
+        }
+    }
+
     /**
      * Öffentlicher API-Call für die UI:
      * - Wenn Permission vorhanden → sofort senden.
@@ -71,6 +86,8 @@ class AppViewModel(
                     if (granted) {
                         val t = pendingTitle
                         val m = pendingMessage
+                        pendingTitle = null
+                        pendingMessage = null
                         if (t != null) {
                             Logger.i(TAG, "Permission granted in callback → sending pending notification (title=\"$t\")")
                             notificationService.showNotification(title = t, message = m)

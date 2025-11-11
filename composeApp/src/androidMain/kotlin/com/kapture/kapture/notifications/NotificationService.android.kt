@@ -23,6 +23,9 @@ actual class NotificationService actual constructor() {
         }
         ensureChannel(ctx)
 
+        var id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+        Logger.i(TAG, "Posting Android notification id=$id title=\"$title\"")
+
         val notification = NotificationCompat.Builder(ctx, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
@@ -33,12 +36,15 @@ actual class NotificationService actual constructor() {
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)    // optional, hilft bei Heads-Up
             .build()
 
-        NotificationManagerCompat.from(ctx)
-            .notify(System.currentTimeMillis().toInt(), notification)
+        NotificationManagerCompat.from(ctx).notify(id, notification)
+
     }
 
     actual fun requestPermission(activity: PlatformActivity?, onFinished: (Boolean) -> Unit) {
-        val act = activity?.activity ?: run { onFinished(false); return }
+        val act = activity?.activity ?: run {
+            onFinished(false); return
+        }
+
         appContext = act.applicationContext
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -1,11 +1,11 @@
 package com.kapture.kapture.notifications
 
 import com.kapture.kapture.logger.Logger
-import platform.UserNotifications.*
-import platform.Foundation.NSDate
-import platform.Foundation.timeIntervalSince1970
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import platform.Foundation.NSDate
+import platform.Foundation.timeIntervalSince1970
+import platform.UserNotifications.*
 
 actual class NotificationService actual constructor() {
 
@@ -49,8 +49,8 @@ actual class NotificationService actual constructor() {
 
     private fun scheduleInternal(id: String, title: String, body: String, seconds: Double) {
         val content = UNMutableNotificationContent().apply {
-            setTitle(title); setBody(body)
-            sound = UNNotificationSound.defaultSound()
+            setTitle(title)
+            setBody(body)
         }
         val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(seconds, false)
         val request = UNNotificationRequest.requestWithIdentifier(id, content, trigger)

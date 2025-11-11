@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import android.content.pm.PackageManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.notifications.NotificationStateEvent
 import com.kapture.kapture.notifications.NotificationPermissionType
@@ -26,6 +27,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
+            // Option A: bei JEDEM Start Permission-Check anstoßen (Dialog erscheint nur 1x systemseitig)
+            LaunchedEffect(Unit) {
+                notificationVm.askNotificationPermission(
+                    activity = PlatformActivity(this@MainActivity),
+                    source = "startup"
+                )
+            }
+
             App(
                 onRefreshFabClick = {
                     notificationVm.sendWithPermission(
