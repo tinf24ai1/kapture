@@ -101,14 +101,7 @@ fun HomeScreen() {
                         }
                     },
                 ) {
-                    Icon(Icons.Rounded.Casino, contentDescription = "Lever")
-                }
-
-                FloatingActionButton(
-                    onClick = {
-                    },
-                ) {
-                    Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
+                    Icon(Icons.Rounded.Casino, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
                 }
                 FloatingActionButton(
                     onClick = {
