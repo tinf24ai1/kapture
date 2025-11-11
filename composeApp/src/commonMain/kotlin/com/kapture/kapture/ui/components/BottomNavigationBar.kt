@@ -22,9 +22,9 @@ import com.kapture.kapture.navigation.NavigationIndex
 import com.kapture.kapture.navigation.Screen
 import com.kapture.kapture.ui.screens.ArchiveScreen
 import com.kapture.kapture.ui.screens.HomeScreen
-
+import com.kapture.kapture.storage.MinHeap
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(minHeap: MinHeap) {
 
     var selectedItem by remember {
         mutableStateOf(NavigationIndex.HOME_SCREEN)
@@ -68,7 +68,7 @@ fun BottomNavigationBar() {
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Home.route) {
-                HomeScreen()
+                HomeScreen(minHeap)
             }
             composable(Screen.Archive.route) {
                 ArchiveScreen()

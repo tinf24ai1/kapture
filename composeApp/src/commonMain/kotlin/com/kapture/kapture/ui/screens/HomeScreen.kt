@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,19 +32,15 @@ import com.kapture.kapture.ui.components.InputDialog
 import com.kapture.kapture.ui.components.AddIdeaForms
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.ui.components.DisplayIdea
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.todayAt
 
 @Composable
-fun HomeScreen() {
-
-    val minHeap = remember {
-        val heap = MinHeap()
-        val storedItems: List<Item>? = LocalStorage().restore("MinHeap")
-        storedItems?.forEach { heap.add(it) }
-        heap
-    }
+fun HomeScreen(minHeap : MinHeap) {
 
     var showDialog by remember {
         mutableStateOf(false)
