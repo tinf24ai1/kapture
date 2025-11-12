@@ -1,5 +1,7 @@
 package com.kapture.kapture.storage
 
+import com.kapture.kapture.storage.LocalStorage
+
 class MinHeap {
     val items = mutableListOf<Item>()
 
