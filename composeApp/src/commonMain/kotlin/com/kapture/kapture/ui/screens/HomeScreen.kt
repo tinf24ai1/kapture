@@ -4,12 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,19 +30,48 @@ import com.kapture.kapture.storage.Item
 import kotlinx.datetime.Instant
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(minHeap : MinHeap) {
 
     var showDialog by remember {
         mutableStateOf(false)
     }
 
+    var releasedItemState by remember { mutableStateOf<Item?>(null) }
+    fun changeReleasedItemState(state: Item?) {
+        releasedItemState = state
+    }
+
     if (showDialog) {
-        InputDialog(
-            onConfirm = { },
-            onDismiss = {
-                showDialog = !showDialog
+        Dialog(
+            onDismissRequest = { showDialog = false }
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .wrapContentHeight(),
+                shape = MaterialTheme.shapes.large,
+                tonalElevation = 8.dp
+            ) {
+                AddIdeaForms(
+                    onSubmit = { title, releaseDate, idea ->
+                        minHeap.add(Item(title, releaseDate, idea))
+                        showDialog = false
+                    },
+                    onCancel = { showDialog = false }
+                )
             }
-        )
+        }
+    }
+
+    releasedItemState?.let { item ->
+        Dialog(onDismissRequest = { changeReleasedItemState(null) }) {
+            DisplayIdea(
+                title = item.title,
+                idea = item.idea,
+                releaseDate = item.releaseDate,
+                onClose = { changeReleasedItemState(null) }
+            )
+        }
     }
 
     Surface(
@@ -51,9 +84,14 @@ fun HomeScreen() {
             ) {
                 FloatingActionButton(
                     onClick = {
+                        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                        val topItem = minHeap.peek()
+                        if (topItem != null && topItem.releaseDate <= today) {
+                            changeReleasedItemState(minHeap.poll())
+                        }
                     },
                 ) {
-                    Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
+                    Icon(Icons.Rounded.Casino, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
                 }
                 FloatingActionButton(
                     onClick = {
