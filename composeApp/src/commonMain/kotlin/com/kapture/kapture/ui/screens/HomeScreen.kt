@@ -23,10 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kapture.kapture.ui.components.InputDialog
 import com.kapture.kapture.notifications.*
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.window.Dialog
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.storage.Item
