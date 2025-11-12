@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.notifications.*
 import androidx.compose.ui.window.Dialog
+import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.storage.Item
 import com.kapture.kapture.ui.components.AddIdeaForms
@@ -32,6 +33,10 @@ import com.kapture.kapture.ui.components.DisplayIdea
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import com.kapture.kapture.reminder.createReminderScheduler
+import com.kapture.kapture.reminder.scheduleNextWithLog   // <— NEU
+import kotlinx.datetime.toLocalDateTime
+
 
 @Composable
 fun HomeScreen(minHeap : MinHeap) {
@@ -48,6 +53,9 @@ fun HomeScreen(minHeap : MinHeap) {
         releasedItemState = state
     }
 
+    val scheduler = remember { createReminderScheduler() }
+
+
     if (showDialog) {
         Dialog(
             onDismissRequest = { showDialog = false }
@@ -61,7 +69,18 @@ fun HomeScreen(minHeap : MinHeap) {
             ) {
                 AddIdeaForms(
                     onSubmit = { title, releaseDate, idea ->
+                        Logger.i(
+                            "Reminder",
+                            "[AddIdea] neue Idee: '$title' → releaseDate=$releaseDate (nur Info, noch nicht geplant)"
+                        )
+
                         minHeap.add(Item(title, releaseDate, idea))
+                        // 2) NEU: nächste Idee planen
+                        scheduler.scheduleNextWithLog(
+                            source = "AddIdea",
+                            itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                            hour = 10, minute = 0
+                        )
                         showDialog = false
                     },
                     onCancel = { showDialog = false }
@@ -97,6 +116,12 @@ fun HomeScreen(minHeap : MinHeap) {
                         val topItem = minHeap.peek()
                         if (topItem != null && topItem.releaseDate <= today) {
                             changeReleasedItemState(minHeap.poll())
+                            // 4) NEU: nächste Idee planen
+                            scheduler.scheduleNextWithLog(
+                                source = "Release",
+                                itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                                hour = 10, minute = 0
+                            )
                         }
                     },
                 ) {

@@ -8,6 +8,10 @@ import com.kapture.kapture.storage.MinHeap
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.kapture.kapture.ui.components.BottomNavigationBar
 import com.kapture.kapture.ui.components.NotificationsDeniedDialog
+import com.kapture.kapture.reminder.createReminderScheduler
+import com.kapture.kapture.reminder.ReminderScheduler
+import androidx.compose.runtime.remember
+import com.kapture.kapture.reminder.scheduleNextWithLog
 
 @Composable
 @Preview
@@ -23,6 +27,16 @@ fun App(
         storedItems?.forEach { heap.add(it) }
         heap
     }
+
+    val scheduler: ReminderScheduler = remember { createReminderScheduler() }
+    val sorted = remember(minHeap.items) { minHeap.items.sortedBy { it.releaseDate } }
+        LaunchedEffect(minHeap.items) {
+            scheduler.scheduleNextWithLog(
+                source = "AppStart",
+                itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                hour = 10, minute = 0
+            )
+        }
 
     MaterialTheme {
         NotificationsDeniedDialog(
