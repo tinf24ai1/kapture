@@ -11,13 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,17 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kapture.kapture.storage.Item
-import com.kapture.kapture.storage.LocalStorage
-import com.kapture.kapture.ui.components.InputDialog
 import com.kapture.kapture.ui.components.AddIdeaForms
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.ui.components.DisplayIdea
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.todayAt
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 @Composable
 fun HomeScreen(minHeap : MinHeap) {
@@ -47,6 +40,9 @@ fun HomeScreen(minHeap : MinHeap) {
     }
 
     var releasedItemState by remember { mutableStateOf<Item?>(null) }
+    fun changeReleasedItemState(state: Item?) {
+        releasedItemState = state
+    }
 
     if (showDialog) {
         Dialog(
@@ -71,12 +67,12 @@ fun HomeScreen(minHeap : MinHeap) {
     }
 
     releasedItemState?.let { item ->
-        Dialog(onDismissRequest = { releasedItemState = null }) {
+        Dialog(onDismissRequest = { changeReleasedItemState(null) }) {
             DisplayIdea(
                 title = item.title,
                 idea = item.idea,
                 releaseDate = item.releaseDate,
-                onClose = { releasedItemState = null }
+                onClose = { changeReleasedItemState(null) }
             )
         }
     }
@@ -91,10 +87,10 @@ fun HomeScreen(minHeap : MinHeap) {
             ) {
                 FloatingActionButton(
                     onClick = {
-                        val today = kotlinx.datetime.Clock.System.todayAt(kotlinx.datetime.TimeZone.currentSystemDefault())
+                        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
                         val topItem = minHeap.peek()
                         if (topItem != null && topItem.releaseDate <= today) {
-                            releasedItemState = minHeap.poll()
+                            changeReleasedItemState(minHeap.poll())
                         }
                     },
                 ) {

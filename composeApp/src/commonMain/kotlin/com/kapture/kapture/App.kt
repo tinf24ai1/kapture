@@ -13,7 +13,7 @@ import com.kapture.kapture.ui.components.BottomNavigationBar
 fun App() {
     val minHeap = remember {
         val heap = MinHeap()
-        val storedItems: List<Item>? = LocalStorage().restore("MinHeap")
+        val storedItems: List<Item>? = LocalStorage.restore("MinHeap")
         storedItems?.forEach { heap.add(it) }
         heap
     }

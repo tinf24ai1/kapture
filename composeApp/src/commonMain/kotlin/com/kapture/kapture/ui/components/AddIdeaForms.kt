@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
+import kotlinx.datetime.todayIn
 import kotlin.random.Random
 
 @Composable
@@ -14,7 +15,7 @@ fun AddIdeaForms(
     onSubmit: (title: String, releaseDate: LocalDate, idea: String) -> Unit = { _, _, _ -> },
     onCancel: () -> Unit = {}
 ) {
-    val baseDate = Clock.System.todayAt(TimeZone.currentSystemDefault())
+    val baseDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     var title by remember { mutableStateOf("") }
     var idea by remember { mutableStateOf("") }
 
