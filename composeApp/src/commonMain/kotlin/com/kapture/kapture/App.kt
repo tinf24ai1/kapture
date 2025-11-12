@@ -7,10 +7,16 @@ import com.kapture.kapture.storage.LocalStorage
 import com.kapture.kapture.storage.MinHeap
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.kapture.kapture.ui.components.BottomNavigationBar
+import com.kapture.kapture.ui.components.NotificationsDeniedDialog
 
 @Composable
 @Preview
-fun App() {
+fun App(
+
+    showPermissionHintDialog: Boolean = false,
+    onDismissPermissionHint: () -> Unit = {},
+
+) {
     val minHeap = remember {
         val heap = MinHeap()
         val storedItems: List<Item>? = LocalStorage.restore("MinHeap")
@@ -19,6 +25,14 @@ fun App() {
     }
 
     MaterialTheme {
-        BottomNavigationBar(minHeap)
+        NotificationsDeniedDialog(
+            visible = showPermissionHintDialog,
+            onDismiss = onDismissPermissionHint
+        )
+
+
+        BottomNavigationBar(
+            minHeap
+        )
     }
 }

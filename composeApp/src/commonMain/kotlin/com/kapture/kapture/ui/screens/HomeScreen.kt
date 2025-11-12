@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.kapture.kapture.notifications.*
 import androidx.compose.ui.window.Dialog
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.storage.Item
@@ -34,6 +35,9 @@ import kotlinx.datetime.todayIn
 
 @Composable
 fun HomeScreen(minHeap : MinHeap) {
+  
+    val notificationService = remember { NotificationService() }
+    val notificationVm = remember { AppViewModel(notificationService) }
 
     var showDialog by remember {
         mutableStateOf(false)
@@ -79,12 +83,14 @@ fun HomeScreen(minHeap : MinHeap) {
 
     Surface(
         modifier = Modifier.fillMaxSize()
-    ) {
+    )
+    {
         Box {
             Row(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+
                 FloatingActionButton(
                     onClick = {
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())

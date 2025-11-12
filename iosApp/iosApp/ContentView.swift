@@ -1,6 +1,15 @@
 import UIKit
 import SwiftUI
 import ComposeApp
+import shared
+
+let notifService = NotificationService()
+let notifVM = AppViewModel(notificationService: notifService)
+
+Button("Enable & Show") {
+    vm.askNotificationPermission(activity: nil)
+    vm.showNotification()
+}
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
@@ -16,6 +25,18 @@ struct ContentView: View {
             .ignoresSafeArea()
     }
 }
+
+App(
+    onRefreshFabClick: {
+        notifVM.askNotificationPermission(activity: nil)
+        vm.sendWithPermission(
+            activity: nil,
+            title: "Test",
+            message: "Test Test Test"
+        )
+    },
+    onAddFabClick: { /* unverändert */ }
+)
 
 
 
