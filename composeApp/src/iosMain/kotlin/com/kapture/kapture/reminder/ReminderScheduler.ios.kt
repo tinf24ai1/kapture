@@ -6,10 +6,12 @@ import platform.UserNotifications.*
 import com.kapture.kapture.logger.Logger
 
 
-/** iOS-Implementation: UNCalendarNotificationTrigger, „ungefähr“. */
+private const val NOTIF_TITLE = "A new time capsule is ready!"
+private const val NOTIF_MESSAGE = "Check it out in your Kapture"
 class IOSReminderScheduler : ReminderScheduler {
 
     override fun schedule(item: Item, hour: Int, minute: Int) {
+        // Build NSDateComponents from LocalDate + hh:mm
         val d = item.releaseDate
         val comps = NSDateComponents().apply {
             year = d.year.toLong()
@@ -19,9 +21,10 @@ class IOSReminderScheduler : ReminderScheduler {
             this.minute = minute.toLong()
         }
 
+        // iOS fires approximately; OS may coalesce under power constraints
         val content = UNMutableNotificationContent().apply {
-            title = "Idea ist reif"
-            body = item.title
+            NOTIF_TITLE
+            NOTIF_MESSAGE
         }
 
         val trigger = UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(
@@ -35,10 +38,13 @@ class IOSReminderScheduler : ReminderScheduler {
             trigger = trigger
         )
 
+
+        val hm = "${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}"
+
         Logger.i(
             "Reminder",
-            "iOS plant '${item.title}' für ${item.releaseDate} %02d:%02d"
-                .format(hour, minute)
+            "iOS plant '${item.title}' für ${item.releaseDate} $hm"
+
         )
 
         UNUserNotificationCenter.currentNotificationCenter()

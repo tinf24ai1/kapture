@@ -38,6 +38,7 @@ import com.kapture.kapture.reminder.scheduleNextWithLog   // <— NEU
 import kotlinx.datetime.toLocalDateTime
 
 
+
 @Composable
 fun HomeScreen(minHeap : MinHeap) {
   
@@ -69,13 +70,14 @@ fun HomeScreen(minHeap : MinHeap) {
             ) {
                 AddIdeaForms(
                     onSubmit = { title, releaseDate, idea ->
-                        Logger.i(
+                        Logger.d(
                             "Reminder",
-                            "[AddIdea] neue Idee: '$title' → releaseDate=$releaseDate (nur Info, noch nicht geplant)"
+                            "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                         )
-
+                        //Add idea to heap (persistence in storage layer)
                         minHeap.add(Item(title, releaseDate, idea))
-                        // 2) NEU: nächste Idee planen
+
+                        // Re-schedule next idea notification (earliest date)
                         scheduler.scheduleNextWithLog(
                             source = "AddIdea",
                             itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
@@ -116,7 +118,7 @@ fun HomeScreen(minHeap : MinHeap) {
                         val topItem = minHeap.peek()
                         if (topItem != null && topItem.releaseDate <= today) {
                             changeReleasedItemState(minHeap.poll())
-                            // 4) NEU: nächste Idee planen
+                            // After removing head, schedule next earliest idea
                             scheduler.scheduleNextWithLog(
                                 source = "Release",
                                 itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
@@ -134,6 +136,29 @@ fun HomeScreen(minHeap : MinHeap) {
                 ) {
                     Icon(Icons.Rounded.Add, Icons.Rounded.Add::class.qualifiedName)
                 }
+ /*TEST BUTTON FOR SCHEDULING NOTIFICATIONS
+                FloatingActionButton(
+                    onClick = {
+                        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        // Fake-item for Test
+                        val testItem = Item(
+                            title = "TEST-NOTIF-${now.hour}-${now.minute}",
+                            releaseDate = now.date,
+                            idea = "debug"
+                        )
+                        // schedule in ~ 1 min
+                        val testHour = now.hour
+                        val testMinute = (now.minute + 1) % 60
+
+                        val hm = "${testHour.toString().padStart(2,'0')}:${testMinute.toString().padStart(2,'0')}"
+
+                        Logger.d("Reminder", "[Debug] plan Test-Notification for ${now.date} at $hm")
+                        scheduler.schedule(testItem, hour = testHour, minute = testMinute)
+                    },
+                ) {
+                    Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
+                }
+*/
             }
         }
     }

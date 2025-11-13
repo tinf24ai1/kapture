@@ -1,6 +1,7 @@
 package com.kapture.kapture.reminder
 
 import android.content.Context
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.*
 import androidx.work.WorkerParameters
 import com.kapture.kapture.notifications.NotificationService
@@ -11,31 +12,35 @@ import java.util.concurrent.TimeUnit
 import com.kapture.kapture.logger.Logger
 
 
-/** Android-Implementation: OneTimeWorkRequest (WorkManager), „ungefähr zur Zeit X“. */
+private const val NOTIF_TITLE = "A new time capsule is ready!"
+private const val NOTIF_MESSAGE = "Check it out in your Kapture"
+
 class AndroidReminderScheduler(
     private val ctx: Context
 ) : ReminderScheduler {
 
     override fun schedule(item: Item, hour: Int, minute: Int) {
+        // Convert LocalDate + hh:mm to Instant
         val triggerAt = item.releaseDate
             .atTime(hour, minute)
             .toInstant(TimeZone.currentSystemDefault())
         val now = Clock.System.now()
         val delayMs = (triggerAt.toEpochMilliseconds() - now.toEpochMilliseconds()).coerceAtLeast(0L)
 
+        val hm = "${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}"
+
         val request = OneTimeWorkRequestBuilder<ShowIdeaNotificationWorker>()
             .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
             .setInputData(
                 workDataOf(
-                    // WICHTIG: Nutze eine stabile ID – falls Item noch keine hat, nimm vorerst title.
-                    "itemId" to item.title,
-                    "title" to "Idea ist reif",
-                    "body" to item.title
+                    "title" to NOTIF_TITLE,
+                    "body"  to NOTIF_MESSAGE
                 )
             )
             .addTag(itemTag(itemId = item.title))
             .build()
 
+        // Keep only one pending reminder – replace previous
         WorkManager.getInstance(ctx).enqueueUniqueWork(
             uniqueName(item.title),
             ExistingWorkPolicy.REPLACE,
@@ -44,7 +49,7 @@ class AndroidReminderScheduler(
 
         Logger.i(
             "Reminder",
-            "Android plant '${item.title}' für ${item.releaseDate} %02d:%02d (delayMs=%d)"
+            "Android plans '${item.title}' für ${item.releaseDate} %02d:%02d (delayMs=%d)"
                 .format(hour, minute, delayMs)
         )
     }
@@ -57,28 +62,36 @@ class AndroidReminderScheduler(
     private fun itemTag(itemId: String) = "idea-tag-$itemId"
 }
 
-/** Worker: zeigt zur geplanten Zeit die Benachrichtigung. */
+// Worker run by WorkManager for scheduled time (inexact because of Doze/Standby)
 class ShowIdeaNotificationWorker(
     appCtx: Context,
     params: WorkerParameters
 ) : CoroutineWorker(appCtx, params) {
 
     override suspend fun doWork(): Result {
-        val title = inputData.getString("title") ?: return Result.failure()
-        val body = inputData.getString("body") ?: ""
+        val title = inputData.getString("title")
+            ?: "A new time capsule is ready!"
+        val body  = inputData.getString("body")
+            ?: "Check it out in your Kapture"
 
-        // Nutzt eure bestehende NotificationService-Implementation
-        NotificationService().showNotification(title, body)
+        Logger.i("Reminder", "Worker START – title='$title'")
 
-        // Optional: Nachfeuer-„Kette“ für Android (ohne App-Open).
-        // -> Kannst du aktivieren, wenn du den Heap im Hintergrund laden willst.
-        // createReminderScheduler().scheduleNext( ... ) // nur sinnvoll, wenn du hier Zugriff auf Items hast.
-        Logger.i("Reminder", "Worker ausgeführt – zeige Notification für '${body}'.")
+        // Use application context (works when process launched in background)
+        val ctx = applicationContext
 
+        val enabled = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
+        if (!enabled) {
+            Logger.i("Reminder", "Worker: notifications disabled - skip")
+            return Result.success()
+        }
+
+        val svc = NotificationService().also { it.setAppContext(ctx) }
+        svc.showNotification(title, body)
+
+        Logger.i("Reminder", "Worker DONE – notification shown")
         return Result.success()
     }
 }
 
-/** Factory-actual */
 actual fun createReminderScheduler(): ReminderScheduler =
     AndroidReminderScheduler(AndroidContextHolder.appContext)

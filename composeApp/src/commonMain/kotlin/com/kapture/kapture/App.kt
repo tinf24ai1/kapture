@@ -29,8 +29,10 @@ fun App(
     }
 
     val scheduler: ReminderScheduler = remember { createReminderScheduler() }
+
     val sorted = remember(minHeap.items) { minHeap.items.sortedBy { it.releaseDate } }
         LaunchedEffect(minHeap.items) {
+            //Pick earliest idea and schedule notification for 10:00 AM on its release date
             scheduler.scheduleNextWithLog(
                 source = "AppStart",
                 itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
