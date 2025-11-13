@@ -1,6 +1,7 @@
 package com.kapture.kapture.notifications
 
 import android.Manifest
+import android.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.kapture.kapture.logger.Logger
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.annotation.RequiresPermission
 import com.kapture.kapture.MainActivity
 
 // Single channel definition (ID for high importance)
@@ -54,6 +56,7 @@ actual class NotificationService actual constructor() {
     }
 
     //Called from UI or from the worker
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     actual fun showNotification(title: String, message: String?) {
         val ctx = appContext ?: run {
             Logger.i("Reminder", "No appContext set – call setAppContext(...) before showNotification")
@@ -94,7 +97,7 @@ actual class NotificationService actual constructor() {
         val notif = NotificationCompat.Builder(ctx, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(message ?: "")
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // später: eigenes Icon
+            .setSmallIcon(R.drawable.ic_dialog_info) // später: eigenes Icon
             .setContentIntent(pi)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // < API 26

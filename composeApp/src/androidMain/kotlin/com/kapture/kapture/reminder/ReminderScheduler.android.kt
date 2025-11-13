@@ -1,6 +1,8 @@
 package com.kapture.kapture.reminder
 
+import android.Manifest
 import android.content.Context
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.*
 import androidx.work.WorkerParameters
@@ -68,6 +70,7 @@ class ShowIdeaNotificationWorker(
     params: WorkerParameters
 ) : CoroutineWorker(appCtx, params) {
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         val title = inputData.getString("title")
             ?: "A new time capsule is ready!"
