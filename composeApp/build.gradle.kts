@@ -30,6 +30,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.work.runtime.ktx)
+
         }
         commonMain.dependencies {
             implementation(libs.navigation.compose)
@@ -45,6 +47,7 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
             implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

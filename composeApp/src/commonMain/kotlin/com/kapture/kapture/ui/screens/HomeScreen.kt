@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.notifications.*
 import androidx.compose.ui.window.Dialog
+import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.storage.MinHeap
 import com.kapture.kapture.storage.Item
 import com.kapture.kapture.ui.components.AddIdeaForms
@@ -32,6 +33,11 @@ import com.kapture.kapture.ui.components.DisplayIdea
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import com.kapture.kapture.reminder.createReminderScheduler
+import com.kapture.kapture.reminder.scheduleNextWithLog   // <— NEU
+import kotlinx.datetime.toLocalDateTime
+
+
 
 @Composable
 fun HomeScreen(minHeap : MinHeap) {
@@ -48,6 +54,9 @@ fun HomeScreen(minHeap : MinHeap) {
         releasedItemState = state
     }
 
+    val scheduler = remember { createReminderScheduler() }
+
+
     if (showDialog) {
         Dialog(
             onDismissRequest = { showDialog = false }
@@ -61,7 +70,19 @@ fun HomeScreen(minHeap : MinHeap) {
             ) {
                 AddIdeaForms(
                     onSubmit = { title, releaseDate, idea ->
+                        Logger.d(
+                            "Reminder",
+                            "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
+                        )
+                        //Add idea to heap (persistence in storage layer)
                         minHeap.add(Item(title, releaseDate, idea))
+
+                        // Re-schedule next idea notification (earliest date)
+                        scheduler.scheduleNextWithLog(
+                            source = "AddIdea",
+                            itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                            hour = 10, minute = 0
+                        )
                         showDialog = false
                     },
                     onCancel = { showDialog = false }
@@ -97,6 +118,12 @@ fun HomeScreen(minHeap : MinHeap) {
                         val topItem = minHeap.peek()
                         if (topItem != null && topItem.releaseDate <= today) {
                             changeReleasedItemState(minHeap.poll())
+                            // After removing head, schedule next earliest idea
+                            scheduler.scheduleNextWithLog(
+                                source = "Release",
+                                itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                                hour = 10, minute = 0
+                            )
                         }
                     },
                 ) {
@@ -109,6 +136,29 @@ fun HomeScreen(minHeap : MinHeap) {
                 ) {
                     Icon(Icons.Rounded.Add, Icons.Rounded.Add::class.qualifiedName)
                 }
+ /*TEST BUTTON FOR SCHEDULING NOTIFICATIONS
+                FloatingActionButton(
+                    onClick = {
+                        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        // Fake-item for Test
+                        val testItem = Item(
+                            title = "TEST-NOTIF-${now.hour}-${now.minute}",
+                            releaseDate = now.date,
+                            idea = "debug"
+                        )
+                        // schedule in ~ 1 min
+                        val testHour = now.hour
+                        val testMinute = (now.minute + 1) % 60
+
+                        val hm = "${testHour.toString().padStart(2,'0')}:${testMinute.toString().padStart(2,'0')}"
+
+                        Logger.d("Reminder", "[Debug] plan Test-Notification for ${now.date} at $hm")
+                        scheduler.schedule(testItem, hour = testHour, minute = testMinute)
+                    },
+                ) {
+                    Icon(Icons.Rounded.Rotate90DegreesCw, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
+                }
+*/
             }
         }
     }

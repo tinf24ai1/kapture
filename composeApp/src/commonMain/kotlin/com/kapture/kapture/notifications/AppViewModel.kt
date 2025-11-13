@@ -73,7 +73,7 @@ class AppViewModel(
         }
     }
 
-    // Send notification: Check if granted -> send
+    // Send instant notification: Check if granted -> send
     fun sendWithPermission(activity: PlatformActivity?, title: String, message: String? = null) {
         scope.launch {
             val enabled = notificationService.areNotificationsEnabled()
@@ -92,7 +92,7 @@ class AppViewModel(
                         pendingTitle = null
                         pendingMessage = null
                         if (t != null) {
-                            Logger.i(TAG, "Permission granted in callback → sending pending notification (title=\"$t\")")
+                            Logger.i(TAG, "Permission granted in callback - sending pending notification (title=\"$t\")")
                             notificationService.showNotification(title = t, message = m)
 
                         }
@@ -104,7 +104,7 @@ class AppViewModel(
         }
     }
 
-    // Low-level send (assumes permission)
+    // Low-level instant- send (assumes permission)
     fun showNotification(title: String, message: String? = null) {
         Logger.i(TAG, "Sending notification (title=\"$title\")")
         notificationService.showNotification(title = title, message = message)
