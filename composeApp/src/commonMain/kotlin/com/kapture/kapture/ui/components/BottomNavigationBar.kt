@@ -9,9 +9,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -20,11 +23,48 @@ import androidx.navigation.compose.rememberNavController
 import com.kapture.kapture.navigation.Navigation
 import com.kapture.kapture.navigation.NavigationIndex
 import com.kapture.kapture.navigation.Screen
+import com.kapture.kapture.storage.Item
+import com.kapture.kapture.storage.LocalStorage
 import com.kapture.kapture.ui.screens.ArchiveScreen
 import com.kapture.kapture.ui.screens.HomeScreen
 import com.kapture.kapture.storage.MinHeap
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
+import kotlinx.datetime.*
+import kotlin.random.Random
+
 @Composable
-fun BottomNavigationBar(minHeap: MinHeap) {
+fun BottomNavigationBar(
+    minHeap: MinHeap,
+) {
+
+    val baseDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val releaseDate: () -> LocalDate = {
+        val start = baseDate.plus(1, DateTimeUnit.DAY).toEpochDays()
+        val end = baseDate.plus(8, DateTimeUnit.DAY).toEpochDays()
+        val randomDay = Random.nextInt(start, end + 1)
+        LocalDate.fromEpochDays(randomDay)
+    }
+
+    var list = mutableStateListOf<Item>()
+    if (LocalStorage.isset("archiveList")) {
+        list = (LocalStorage.restore<MutableList<Item>>("archiveList"))?.toMutableStateList() ?: list
+    }
+
+    val archiveList by remember {
+        mutableStateOf(list)
+    }
+
+    val addToArchiveList: (Item) -> Unit = { item ->
+        archiveList.add(item)
+        LocalStorage.save<MutableList<Item>>("archiveList", archiveList.toMutableList())
+    }
+    val rmFromArchiveList: (Item) -> Unit = { item ->
+        archiveList.remove(item)
+        LocalStorage.save<MutableList<Item>>("archiveList", archiveList.toMutableList())
+    }
 
     var selectedItem by remember {
         mutableStateOf(NavigationIndex.HOME_SCREEN)
@@ -68,10 +108,10 @@ fun BottomNavigationBar(minHeap: MinHeap) {
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(minHeap)
+                HomeScreen(minHeap, addToArchiveList, releaseDate)
             }
             composable(Screen.Archive.route) {
-                ArchiveScreen()
+                ArchiveScreen(archiveList, rmFromArchiveList)
             }
         }
     }

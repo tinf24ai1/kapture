@@ -33,7 +33,7 @@ class IOSReminderScheduler : ReminderScheduler {
         )
 
         val request = UNNotificationRequest.requestWithIdentifier(
-            identifier = item.title, // Besser: Item-ID, wenn vorhanden
+            identifier = item.title,
             content = content,
             trigger = trigger
         )

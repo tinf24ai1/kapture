@@ -43,12 +43,11 @@ fun App(
     MaterialTheme {
         NotificationsDeniedDialog(
             visible = showPermissionHintDialog,
-            onDismiss = onDismissPermissionHint
+            onDismiss = onDismissPermissionHint,
         )
 
-
         BottomNavigationBar(
-            minHeap
+            minHeap = minHeap,
         )
     }
 }
