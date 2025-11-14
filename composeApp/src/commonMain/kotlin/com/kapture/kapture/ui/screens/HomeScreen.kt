@@ -51,6 +51,7 @@ import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.ui.components.ToastHost
 import kotlinx.datetime.toLocalDateTime
 import com.kapture.kapture.reminder.createReminderScheduler
+import com.kapture.kapture.reminder.scheduleNextWithLog
 
 @Composable
 fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: () -> LocalDate) {
@@ -89,7 +90,20 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
             ) {
                 AddIdeaForms(
                     onSubmit = { title, releaseDate, idea ->
+                        Logger.d(
+                            "Reminder",
+                            "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
+                        )
+
                         minHeap.add(Item(title, releaseDate, idea))
+
+                        // Re-schedule next idea notification (earliest date)
+                        scheduler.scheduleNextWithLog(
+                            source = "AddIdea",
+                            itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                            hour = 10, minute = 0
+                        )
+
                         showDialog = false
                     },
                     displayToastMessage = displayToastMessage,
@@ -107,6 +121,7 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                 minHeap = minHeap,
                 releaseDate = releaseDate,
                 addToArchiveList = addToArchiveList,
+                displayToastMessage = displayToastMessage,
                 onClose = { changeReleasedItemState(null) }
             )
         }
@@ -154,6 +169,13 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                             val topItem = minHeap.peek()
                             if (topItem != null && topItem.releaseDate <= today) {
                                 changeReleasedItemState(minHeap.poll())
+
+                                // After removing head, schedule next earliest idea
+                                scheduler.scheduleNextWithLog(
+                                    source = "Release",
+                                    itemsSortedByDate = minHeap.items.sortedBy { it.releaseDate },
+                                    hour = 10, minute = 0
+                                )
                             } else {
                                 displayToastMessage("Currently no Idea ready!")
                             }

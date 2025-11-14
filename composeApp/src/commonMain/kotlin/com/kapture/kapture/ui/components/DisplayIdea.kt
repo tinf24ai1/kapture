@@ -28,6 +28,7 @@ fun DisplayIdea(
     releaseDate: () -> LocalDate,
     addToArchiveList: (Item) -> Unit,
     modifier: Modifier = Modifier,
+    displayToastMessage: (String) -> Unit,
     onClose: () -> Unit
 ) {
     Surface(
@@ -128,6 +129,7 @@ fun DisplayIdea(
                         )
                         minHeap.add(i)
                         Logger.i("Item", "Item '${i.title}' got new timestamp assigned: ${i.releaseDate}")
+                        displayToastMessage("Idea is back in Capsule")
                         onClose()
                     },
                     modifier = Modifier.weight(1f)
@@ -139,6 +141,7 @@ fun DisplayIdea(
                     onClick = {
                         addToArchiveList(item)
                         Logger.i("Item", "Item '${item.title}' got moved to archive")
+                        displayToastMessage("Idea saved to Archive")
                         onClose()
                     },
                     modifier = Modifier.weight(1f)
@@ -148,6 +151,7 @@ fun DisplayIdea(
 
                 Button(
                     onClick = {
+                        displayToastMessage("Idea removed")
                         onClose()
                     },
                     modifier = Modifier.weight(1f)
