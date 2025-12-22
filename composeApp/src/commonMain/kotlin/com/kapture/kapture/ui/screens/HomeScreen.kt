@@ -54,7 +54,7 @@ import com.kapture.kapture.reminder.createReminderScheduler
 import com.kapture.kapture.reminder.scheduleNextWithLog
 
 @Composable
-fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: () -> LocalDate) {
+fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate) {
     var toastMessage by remember { mutableStateOf<String?>(null) }
     val clearToastMessage: () -> Unit = {
         toastMessage = null
@@ -89,13 +89,13 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                 tonalElevation = 8.dp
             ) {
                 AddIdeaForms(
-                    onSubmit = { title, releaseDate, idea ->
+                    onSubmit = { title, releaseDate, idea, startDate, endDate ->
                         Logger.d(
                             "Reminder",
                             "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                         )
 
-                        minHeap.add(Item(title, releaseDate, idea))
+                        minHeap.add(Item(title, releaseDate, idea, startDate, endDate))
 
                         // Re-schedule next idea notification (earliest date)
                         scheduler.scheduleNextWithLog(

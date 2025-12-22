@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -40,10 +39,10 @@ fun BottomNavigationBar(
     minHeap: MinHeap,
 ) {
 
-    val baseDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    val releaseDate: () -> LocalDate = {
-        val start = baseDate.plus(1, DateTimeUnit.DAY).toEpochDays()
-        val end = baseDate.plus(8, DateTimeUnit.DAY).toEpochDays()
+    val releaseDate: (startPlus: Int, endPlus: Int) -> LocalDate = { startPlus, endPlus ->
+        val baseDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val start = baseDate.plus(startPlus, DateTimeUnit.DAY).toEpochDays()
+        val end = baseDate.plus(endPlus, DateTimeUnit.DAY).toEpochDays()
         val randomDay = Random.nextInt(start, end + 1)
         LocalDate.fromEpochDays(randomDay)
     }
