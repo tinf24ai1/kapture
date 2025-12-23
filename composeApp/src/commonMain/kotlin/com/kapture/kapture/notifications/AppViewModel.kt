@@ -17,7 +17,6 @@ class AppViewModel(
 
     //UI observable: True when OS allows notifications
     private val _notificationEnabledState = MutableStateFlow(false)
-    val notificationEnabledState = _notificationEnabledState.asStateFlow()
 
     // Pending payload used when sending notification is requested but not granted
     private val _showDeniedDialog = MutableStateFlow(false)
