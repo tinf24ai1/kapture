@@ -11,7 +11,7 @@ data class Item(
     val title: String,
     val idea: String,
     val releaseDate: LocalDate,
-    val notified: Boolean = false
+    val notified: Boolean = false,
     val startDate: Int,
     val endDate: Int
 )
