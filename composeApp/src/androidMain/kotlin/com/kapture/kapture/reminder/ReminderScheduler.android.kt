@@ -1,18 +1,20 @@
 package com.kapture.kapture.reminder
 
-import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
-import androidx.annotation.RequiresPermission
-import androidx.core.app.NotificationManagerCompat
-import androidx.work.*
-import androidx.work.WorkerParameters
-import com.kapture.kapture.notifications.NotificationService
+import android.content.Intent
+import android.os.Build
+import com.kapture.kapture.logger.Logger
+import com.kapture.kapture.reminder.IdeaAlarmReceiver.Companion.EXTRA_BODY
+import com.kapture.kapture.reminder.IdeaAlarmReceiver.Companion.EXTRA_ITEM_ID
+import com.kapture.kapture.reminder.IdeaAlarmReceiver.Companion.EXTRA_TITLE
 import com.kapture.kapture.settings.AndroidContextHolder
 import com.kapture.kapture.storage.Item
-import kotlinx.datetime.*
-import java.util.concurrent.TimeUnit
-import com.kapture.kapture.logger.Logger
-
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
+import java.util.Calendar
 
 private const val NOTIF_TITLE = "A new time capsule is ready!"
 private const val NOTIF_MESSAGE = "Check it out in your Kapture"
@@ -21,78 +23,79 @@ class AndroidReminderScheduler(
     private val ctx: Context
 ) : ReminderScheduler {
 
+    private val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
     override fun schedule(item: Item, hour: Int, minute: Int) {
-        // Convert LocalDate + hh:mm to Instant
-        val triggerAt = item.releaseDate
-            .atTime(hour, minute)
-            .toInstant(TimeZone.currentSystemDefault())
-        val now = Clock.System.now()
-        val delayMs = (triggerAt.toEpochMilliseconds() - now.toEpochMilliseconds()).coerceAtLeast(0L)
+        val triggerAtMillis = computeTriggerMillis(item, hour, minute)
 
-        val hm = "${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}"
+        val pi = pendingIntentFor(item, title = NOTIF_TITLE, body = NOTIF_MESSAGE)
 
-        val request = OneTimeWorkRequestBuilder<ShowIdeaNotificationWorker>()
-            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
-            .setInputData(
-                workDataOf(
-                    "title" to NOTIF_TITLE,
-                    "body"  to NOTIF_MESSAGE
-                )
-            )
-            .addTag(itemTag(itemId = item.title))
-            .build()
+        alarmManager.cancel(pi)
 
-        // Keep only one pending reminder – replace previous
-        WorkManager.getInstance(ctx).enqueueUniqueWork(
-            uniqueName(item.title),
-            ExistingWorkPolicy.REPLACE,
-            request
-        )
+        // Exact alarms if possible
+        val canExact = Build.VERSION.SDK_INT < 31 || alarmManager.canScheduleExactAlarms()
 
-        Logger.i(
-            "Reminder",
-            "Android plans '${item.title}' für ${item.releaseDate} %02d:%02d (delayMs=%d)"
-                .format(hour, minute, delayMs)
-        )
+        if (canExact) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
+        } else {
+            // Fallback: nicht exakt, aber immer noch geplant.
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
+        }
+
+        Logger.i("Reminder", "Scheduled itemId=${item.id} at=$triggerAtMillis exact=$canExact")
     }
 
     override fun cancel(itemId: String) {
-        WorkManager.getInstance(ctx).cancelAllWorkByTag(itemTag(itemId))
+        val pi = PendingIntent.getBroadcast(
+            ctx,
+            itemId.hashCode(),
+            Intent(ctx, IdeaAlarmReceiver::class.java),
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        ) ?: return
+
+        alarmManager.cancel(pi)
+        pi.cancel()
+
+        Logger.i("Reminder", "Cancelled itemId=$itemId")
     }
 
-    private fun uniqueName(itemId: String) = "idea-$itemId"
-    private fun itemTag(itemId: String) = "idea-tag-$itemId"
-}
-
-// Worker run by WorkManager for scheduled time (inexact because of Doze/Standby)
-class ShowIdeaNotificationWorker(
-    appCtx: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appCtx, params) {
-
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    override suspend fun doWork(): Result {
-        val title = inputData.getString("title")
-            ?: "A new time capsule is ready!"
-        val body  = inputData.getString("body")
-            ?: "Check it out in your Kapture"
-
-        Logger.i("Reminder", "Worker START – title='$title'")
-
-        // Use application context (works when process launched in background)
-        val ctx = applicationContext
-
-        val enabled = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
-        if (!enabled) {
-            Logger.i("Reminder", "Worker: notifications disabled - skip")
-            return Result.success()
+    private fun pendingIntentFor(item: Item, title: String, body: String): PendingIntent {
+        val intent = Intent(ctx, IdeaAlarmReceiver::class.java).apply {
+            putExtra(EXTRA_ITEM_ID, item.id)
+            putExtra(EXTRA_TITLE, title)
+            putExtra(EXTRA_BODY, body)
         }
 
-        val svc = NotificationService().also { it.setAppContext(ctx) }
-        svc.showNotification(title, body)
+        return PendingIntent.getBroadcast(
+            ctx,
+            item.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
 
-        Logger.i("Reminder", "Worker DONE – notification shown")
-        return Result.success()
+    // If trigger time in past (timeskip) -> Notify after 1sec
+    private fun computeTriggerMillis(item: Item, hour: Int, minute: Int): Long {
+        val nowDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.YEAR, item.releaseDate.year)
+            set(Calendar.MONTH, item.releaseDate.monthNumber - 1) // Calendar months: 0..11
+            set(Calendar.DAY_OF_MONTH, item.releaseDate.dayOfMonth)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val target = cal.timeInMillis
+        val now = System.currentTimeMillis()
+
+        return if (item.releaseDate < nowDate || target < now) {
+            now + 1_000L
+        } else {
+            target
+        }
     }
 }
 

@@ -17,7 +17,6 @@ class AppViewModel(
 
     //UI observable: True when OS allows notifications
     private val _notificationEnabledState = MutableStateFlow(false)
-    val notificationEnabledState = _notificationEnabledState.asStateFlow()
 
     // Pending payload used when sending notification is requested but not granted
     private val _showDeniedDialog = MutableStateFlow(false)
@@ -71,43 +70,6 @@ class AppViewModel(
                 if (granted) NotificationPermissionType.GRANTED else NotificationPermissionType.DENIED
             )
         }
-    }
-
-    // Send instant notification: Check if granted -> send
-    fun sendWithPermission(activity: PlatformActivity?, title: String, message: String? = null) {
-        scope.launch {
-            val enabled = notificationService.areNotificationsEnabled()
-            if (enabled) {
-                Logger.i(TAG, "Permission already granted - sending now (title=\"$title\")")
-                notificationService.showNotification(title = title, message = message)
-            } else {
-                Logger.i(TAG, "Permission not granted - requesting; will queue pending notification (title=\"$title\")")
-                pendingTitle = title
-                pendingMessage = message
-                notificationService.requestPermission(activity) { granted ->
-                    Logger.i(TAG, "Permission callback result: granted=$granted")
-                    if (granted) {
-                        val t = pendingTitle
-                        val m = pendingMessage
-                        pendingTitle = null
-                        pendingMessage = null
-                        if (t != null) {
-                            Logger.i(TAG, "Permission granted in callback - sending pending notification (title=\"$t\")")
-                            notificationService.showNotification(title = t, message = m)
-
-                        }
-                    }
-                    NotificationStateEvent.send(
-                        if (granted) NotificationPermissionType.GRANTED else NotificationPermissionType.DENIED)
-                }
-            }
-        }
-    }
-
-    // Low-level instant- send (assumes permission)
-    fun showNotification(title: String, message: String? = null) {
-        Logger.i(TAG, "Sending notification (title=\"$title\")")
-        notificationService.showNotification(title = title, message = message)
     }
 
     fun dismissDeniedDialog() {

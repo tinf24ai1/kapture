@@ -10,8 +10,5 @@ interface ReminderScheduler {
 
     fun cancel(itemId: String)
 
-    fun scheduleNext(itemsSortedByDate: List<Item>, hour: Int = 10, minute: Int = 0) {
-        if (itemsSortedByDate.isEmpty()) return
-        schedule(itemsSortedByDate.first(), hour, minute)
-    }
+
 }
