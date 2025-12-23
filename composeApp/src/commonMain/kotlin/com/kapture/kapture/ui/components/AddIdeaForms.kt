@@ -7,19 +7,22 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 
 @Composable
 fun AddIdeaForms(
     modifier: Modifier = Modifier,
-    onSubmit: (title: String, releaseDate: LocalDate, idea: String) -> Unit = { _, _, _ -> },
+    onSubmit: (title: String, releaseDate: LocalDate, idea: String, startDate: Int, endDate: Int) -> Unit = { _, _, _, _, _ -> },
     onCancel: () -> Unit = {},
     displayToastMessage: (String) -> Unit = {},
-    releaseDate: () -> LocalDate
+    releaseDate: (Int, Int) -> LocalDate
 ) {
     var title by remember { mutableStateOf("") }
     var idea by remember { mutableStateOf("") }
+    var sliderPosition by remember { mutableStateOf(1f..14f) }
 
     Column(
         modifier = modifier
@@ -45,13 +48,45 @@ fun AddIdeaForms(
                 .height(120.dp)
         )
 
+        Text(
+            text = "Capsule Trigger Range",
+        )
+        RangeSlider(
+            value = sliderPosition,
+            steps = 12,
+            onValueChange = { range -> sliderPosition = range },
+            valueRange = 1f..14f,
+            colors = SliderDefaults.colors(),
+        )
+        Text(
+            text = "Ready in ${
+                if (sliderPosition.start.toInt() == sliderPosition.endInclusive.toInt())
+                    "${sliderPosition.start.toInt()}"
+                else
+                    "${sliderPosition.start.toInt()} to ${sliderPosition.endInclusive.toInt()}"
+            } Day${
+                if (sliderPosition.endInclusive.toInt() != 1) "s" else ""
+            }",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodySmall,
+        )
+
+        Spacer(modifier = Modifier.height(0.dp)) // Just use Columns Arrangement.spacedBy
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
                 onClick = {
-                    onSubmit(title.trim(), releaseDate(), idea.trim())
+                    onSubmit(
+                        title.trim(),
+                        releaseDate(sliderPosition.start.toInt(), sliderPosition.endInclusive.toInt()),
+                        idea.trim(),
+                        sliderPosition.start.toInt(),
+                        sliderPosition.endInclusive.toInt()
+                    )
                     displayToastMessage("Added Idea")
                 },
                 enabled = (title.trim() != "" && idea.trim() != ""),

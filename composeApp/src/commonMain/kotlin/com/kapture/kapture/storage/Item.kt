@@ -9,7 +9,9 @@ import kotlin.random.Random
 data class Item(
     val id: String = "${Clock.System.now().toEpochMilliseconds()}-${Random.nextInt()}",
     val title: String,
-    val releaseDate: LocalDate,
     val idea: String,
+    val releaseDate: LocalDate,
     val notified: Boolean = false
+    val startDate: Int,
+    val endDate: Int
 )

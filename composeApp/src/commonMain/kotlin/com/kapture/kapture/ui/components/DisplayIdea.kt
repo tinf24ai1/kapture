@@ -26,7 +26,7 @@ import kotlinx.datetime.format.char
 fun DisplayIdea(
     item: Item,
     minHeap: MinHeap,
-    releaseDate: () -> LocalDate,
+    releaseDate: (Int, Int) -> LocalDate,
     addToArchiveList: (Item) -> Unit,
     modifier: Modifier = Modifier,
     displayToastMessage: (String) -> Unit,
@@ -127,8 +127,10 @@ fun DisplayIdea(
                     onClick = {
                         val i = Item(
                             title = item.title,
-                            releaseDate = releaseDate(),
+                            releaseDate = releaseDate(item.startDate, item.endDate),
                             idea = item.idea,
+                            startDate = item.startDate,
+                            endDate = item.endDate
                         )
                         minHeap.add(i)
                         scheduler.schedule(i, hour = 10, minute = 0)

@@ -32,7 +32,7 @@ import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: () -> LocalDate) {
+fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate) {
     var toastMessage by remember { mutableStateOf<String?>(null) }
     val clearToastMessage: () -> Unit = {
         toastMessage = null
@@ -64,16 +64,15 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                 tonalElevation = 8.dp
             ) {
                 AddIdeaForms(
-                    onSubmit = { title, releaseDate, idea ->
+                    onSubmit = { title, releaseDate, idea, startDate, endDate ->
                         Logger.d(
                             "Reminder",
                             "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                         )
 
-                        val newItem = Item(title = title, releaseDate = releaseDate, idea = idea)
+                        val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
                         minHeap.add(newItem)
 
-// NEU: direkt für dieses Item planen
                         scheduler.schedule(newItem, hour = 10, minute = 0)
 
                         showDialog = false
