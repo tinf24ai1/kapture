@@ -130,7 +130,6 @@ actual class NotificationService actual constructor() {
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                     REQUEST_CODE
                 )
-                // Result via MainActivity.onRequestPermissionsResult
             }
         } else {
             NotificationStateEvent.send(NotificationPermissionType.GRANTED)

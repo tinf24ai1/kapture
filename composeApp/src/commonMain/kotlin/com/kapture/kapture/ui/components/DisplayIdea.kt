@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.logger.Logger
+import com.kapture.kapture.reminder.ReminderScheduler
 import com.kapture.kapture.storage.Item
 import com.kapture.kapture.storage.MinHeap
 import kotlinx.datetime.LocalDate
@@ -29,8 +30,10 @@ fun DisplayIdea(
     addToArchiveList: (Item) -> Unit,
     modifier: Modifier = Modifier,
     displayToastMessage: (String) -> Unit,
-    onClose: () -> Unit
-) {
+    onClose: () -> Unit,
+    scheduler: ReminderScheduler,
+
+    ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -128,6 +131,7 @@ fun DisplayIdea(
                             idea = item.idea,
                         )
                         minHeap.add(i)
+                        scheduler.schedule(i, hour = 10, minute = 0)
                         Logger.i("Item", "Item '${i.title}' got new timestamp assigned: ${i.releaseDate}")
                         displayToastMessage("Idea is back in Capsule")
                         onClose()
