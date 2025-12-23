@@ -1,7 +1,7 @@
 package com.kapture.kapture.notifications
 
 import android.Manifest
-import android.R
+import com.kapture.kapture.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,6 +16,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import androidx.annotation.RequiresPermission
 import com.kapture.kapture.MainActivity
+import android.graphics.BitmapFactory
 
 // Single channel definition (ID for high importance)
 private const val CHANNEL_ID   = "Kapture_reminders_v2"
@@ -97,8 +98,9 @@ actual class NotificationService actual constructor() {
         val notif = NotificationCompat.Builder(ctx, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(message ?: "")
-            .setSmallIcon(R.drawable.ic_dialog_info) // später: eigenes Icon
+            .setSmallIcon(R.drawable.nofitication_icon) // später: eigenes Icon
             .setContentIntent(pi)
+            .setLargeIcon(BitmapFactory.decodeResource(ctx.resources, com.kapture.kapture.R.mipmap.ic_launcher))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // < API 26
             .build()
