@@ -7,5 +7,7 @@ import kotlinx.datetime.LocalDate
 data class Item(
     val title: String,
     val releaseDate: LocalDate, //Important
-    val idea: String
+    val idea: String,
+    val startDate: Int,
+    val endDate: Int
 )
