@@ -2,23 +2,20 @@ package com.kapture.kapture.storage
 
 import com.kapture.kapture.logger.Logger
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.datetime.Instant
 import com.russhwolf.settings.Settings
-import kotlinx.serialization.*
 
 object LocalStorage {
 
-    val settings = Settings()
+    private val settings = Settings()
 
-    val json = Json {
+    private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
 
-    inline fun <reified T> save(key: String, value: T) {
+    internal inline fun <reified T> save(key: String, value: T) {
         try {
             val encoded = json.encodeToString(value)
             settings.putString(key, encoded)
@@ -28,7 +25,7 @@ object LocalStorage {
         }
     }
 
-    inline fun <reified T> restore(key: String): T? {
+    internal inline fun <reified T> restore(key: String): T? {
         val encoded = settings.getStringOrNull(key)
 
         if (encoded == null) {
@@ -47,9 +44,4 @@ object LocalStorage {
     }
 
     fun isset(key: String): Boolean = settings.hasKey(key)
-
-    fun clear(key: String) {
-        settings.remove(key)
-        Logger.i("LocalStorage", "Cleared key='$key'")
-    }
 }

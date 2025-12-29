@@ -1,12 +1,7 @@
 package com.kapture.kapture.storage
 
-import com.kapture.kapture.storage.LocalStorage
-
 class MinHeap {
-    val items = mutableListOf<Item>()
-
-    val size: Int get() = items.size
-    fun isEmpty() = items.isEmpty()
+    private val items = mutableListOf<Item>()
     fun peek(): Item? = items.firstOrNull()
 
     fun add(item: Item) {
@@ -60,9 +55,5 @@ class MinHeap {
         val temp = this[a]
         this[a] = this[b]
         this[b] = temp
-    }
-
-    fun clear() {
-        items.clear()
     }
 }
