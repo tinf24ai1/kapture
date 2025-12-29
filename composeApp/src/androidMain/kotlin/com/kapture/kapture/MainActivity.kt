@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    //Forward Android's permission to shared event bus
+    // Forward Android's permission to shared event bus
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

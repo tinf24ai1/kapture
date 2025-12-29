@@ -8,14 +8,13 @@ import kotlinx.coroutines.flow.collectLatest
 import com.kapture.kapture.settings.AppSettings
 
 // Platform-agnostic ViewModel for notification permission handling and sending notifications.
-
 class AppViewModel(
     private val notificationService: NotificationService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val TAG = "Notifications"
 
-    //UI observable: True when OS allows notifications
+    // UI observable: True when OS allows notifications
     private val _notificationEnabledState = MutableStateFlow(false)
 
     // Pending payload used when sending notification is requested but not granted

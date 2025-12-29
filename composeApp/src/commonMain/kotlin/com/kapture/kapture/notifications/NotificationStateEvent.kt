@@ -16,4 +16,5 @@ object NotificationStateEvent {
     }
 }
 
+// Enum for notification permission types
 enum class NotificationPermissionType { GRANTED, DENIED }

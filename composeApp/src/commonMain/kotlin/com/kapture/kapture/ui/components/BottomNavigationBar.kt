@@ -34,11 +34,13 @@ import kotlinx.datetime.todayIn
 import kotlinx.datetime.*
 import kotlin.random.Random
 
+// Bottom Navigation Bar with Home and Archive screens
 @Composable
 fun BottomNavigationBar(
     minHeap: MinHeap,
 ) {
 
+    // Function to calculate a random release date within a specified range
     val releaseDate: (startPlus: Int, endPlus: Int) -> LocalDate = { startPlus, endPlus ->
         val baseDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val start = baseDate.plus(startPlus, DateTimeUnit.DAY).toEpochDays()
@@ -47,6 +49,7 @@ fun BottomNavigationBar(
         LocalDate.fromEpochDays(randomDay)
     }
 
+    // Restore archived items from LocalStorage
     var list = mutableStateListOf<Item>()
     if (LocalStorage.isset("archiveList")) {
         list = (LocalStorage.restore<MutableList<Item>>("archiveList"))?.toMutableStateList() ?: list
@@ -65,11 +68,12 @@ fun BottomNavigationBar(
         LocalStorage.save<MutableList<Item>>("archiveList", archiveList.toMutableList())
     }
 
+    // Navigation controller to manage navigation between screens
+    val navController = rememberNavController()
+
     var selectedItem by remember {
         mutableStateOf(NavigationIndex.HOME_SCREEN)
     }
-
-    val navController = rememberNavController()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -99,8 +103,7 @@ fun BottomNavigationBar(
                 }
             }
         }
-    ) {
-            paddingValues ->
+    ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,

@@ -6,7 +6,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 
 // Simple reusable dialog shown when notifications were denied.
-
 @Composable
 fun NotificationsDeniedDialog(
     visible: Boolean,

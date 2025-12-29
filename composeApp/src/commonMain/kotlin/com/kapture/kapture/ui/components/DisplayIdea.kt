@@ -23,6 +23,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 
+// Pop-up component to display an Idea with options to Reschedule, Archive or Delete
 @Composable
 fun DisplayIdea(
     item: Item,
@@ -33,8 +34,7 @@ fun DisplayIdea(
     displayToastMessage: (String) -> Unit,
     onClose: () -> Unit,
     scheduler: ReminderScheduler,
-
-    ) {
+) {
 
     Surface(
         modifier = modifier
@@ -130,6 +130,7 @@ fun DisplayIdea(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
+                // Reschedule Button
                 Button(
                     onClick = {
                         val i = Item(
@@ -150,6 +151,7 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Refresh, Icons.Rounded.Refresh::class.qualifiedName)
                 }
 
+                // Archive Button
                 Button(
                     onClick = {
                         addToArchiveList(item)
@@ -162,6 +164,7 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Archive, Icons.Rounded.Archive::class.qualifiedName)
                 }
 
+                // Discard Button
                 Button(
                     onClick = {
                         displayToastMessage("Idea removed")
