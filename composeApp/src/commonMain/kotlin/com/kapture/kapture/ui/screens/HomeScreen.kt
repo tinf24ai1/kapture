@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -86,7 +87,7 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
     }
 
     releasedItemState?.let { item ->
-        Dialog(onDismissRequest = { changeReleasedItemState(null) }) {
+        Dialog(onDismissRequest = { }) {
             DisplayIdea(
                 item = item,
                 minHeap = minHeap,
@@ -94,7 +95,8 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                 scheduler = scheduler,
                 addToArchiveList = addToArchiveList,
                 displayToastMessage = displayToastMessage,
-                onClose = { changeReleasedItemState(null)
+                onClose = {
+                    changeReleasedItemState(null)
 
                 }
             )

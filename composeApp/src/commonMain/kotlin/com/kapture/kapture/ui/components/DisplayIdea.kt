@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.ReminderScheduler
@@ -34,6 +35,7 @@ fun DisplayIdea(
     scheduler: ReminderScheduler,
 
     ) {
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -106,7 +108,12 @@ fun DisplayIdea(
                                 )
                             },
                             border = AssistChipDefaults.assistChipBorder(false),
-                            leadingIcon = { Icon(Icons.Rounded.CalendarMonth, Icons.Rounded.CalendarMonth::class.qualifiedName) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.CalendarMonth,
+                                    Icons.Rounded.CalendarMonth::class.qualifiedName
+                                )
+                            },
                             shape = RoundedCornerShape(16.dp),
                             elevation = AssistChipDefaults.assistChipElevation(4.dp),
                             colors = AssistChipDefaults.assistChipColors(
@@ -118,7 +125,7 @@ fun DisplayIdea(
                 }
             }
 
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
