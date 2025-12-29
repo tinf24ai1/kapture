@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+// ToastHost component to display transient toast messages
 @Composable
 fun ToastHost(
     toastMessage: String?,

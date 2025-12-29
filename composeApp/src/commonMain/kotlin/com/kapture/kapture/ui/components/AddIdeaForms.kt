@@ -7,11 +7,11 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.*
 
+// Form component to add a new Idea with title, description and trigger range
 @Composable
 fun AddIdeaForms(
     modifier: Modifier = Modifier,

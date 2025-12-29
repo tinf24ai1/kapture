@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.ReminderScheduler
@@ -23,6 +22,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 
+// Pop-up component to display an Idea with options to Reschedule, Archive or Delete
 @Composable
 fun DisplayIdea(
     item: Item,
@@ -33,8 +33,7 @@ fun DisplayIdea(
     displayToastMessage: (String) -> Unit,
     onClose: () -> Unit,
     scheduler: ReminderScheduler,
-
-    ) {
+) {
 
     Surface(
         modifier = modifier
@@ -130,6 +129,7 @@ fun DisplayIdea(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
+                // Reschedule Button
                 Button(
                     onClick = {
                         val i = Item(
@@ -150,6 +150,7 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Refresh, Icons.Rounded.Refresh::class.qualifiedName)
                 }
 
+                // Archive Button
                 Button(
                     onClick = {
                         addToArchiveList(item)
@@ -162,6 +163,7 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Archive, Icons.Rounded.Archive::class.qualifiedName)
                 }
 
+                // Discard Button
                 Button(
                     onClick = {
                         displayToastMessage("Idea removed")

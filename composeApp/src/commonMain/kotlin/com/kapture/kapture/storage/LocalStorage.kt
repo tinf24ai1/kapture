@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.russhwolf.settings.Settings
 
+// Object for local key-value storage using kotlinx.serialization
 object LocalStorage {
 
     private val settings = Settings()
@@ -15,6 +16,7 @@ object LocalStorage {
         encodeDefaults = true
     }
 
+    // Save a value under a key in LocalStorage
     internal inline fun <reified T> save(key: String, value: T) {
         try {
             val encoded = json.encodeToString(value)
@@ -25,6 +27,7 @@ object LocalStorage {
         }
     }
 
+    // Restore a value by key from LocalStorage
     internal inline fun <reified T> restore(key: String): T? {
         val encoded = settings.getStringOrNull(key)
 

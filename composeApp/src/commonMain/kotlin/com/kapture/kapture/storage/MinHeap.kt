@@ -1,5 +1,8 @@
 package com.kapture.kapture.storage
 
+// Min-Heap implementation for Items based on releaseDate
+// Used for reciving the next upcoming Item
+// Persisted in LocalStorage as a List<Item>
 class MinHeap {
     private val items = mutableListOf<Item>()
     fun peek(): Item? = items.firstOrNull()

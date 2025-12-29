@@ -39,6 +39,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 
+// Single Archived Element in the Archive Screen
 @Composable
 fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
     Card(
@@ -110,6 +111,7 @@ fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
     }
 }
 
+// Archive Screen displaying list of archived Items
 @Composable
 fun ArchiveScreen(items : SnapshotStateList<Item>, rmFromArchiveList : (Item) -> Unit) {
     Surface(

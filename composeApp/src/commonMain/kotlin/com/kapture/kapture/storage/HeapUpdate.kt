@@ -1,5 +1,6 @@
 package com.kapture.kapture.storage
 
+// Object for sending Notification on Heap-Update
 object HeapUpdate {
     fun markNotified(itemId: String) {
         val items: List<Item> = LocalStorage.restore("MinHeap") ?: emptyList()

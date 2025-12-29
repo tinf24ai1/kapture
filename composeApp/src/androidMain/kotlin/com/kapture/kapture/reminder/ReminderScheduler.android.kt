@@ -38,7 +38,6 @@ class AndroidReminderScheduler(
         if (canExact) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
         } else {
-            // Fallback: nicht exakt, aber immer noch geplant.
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
         }
 

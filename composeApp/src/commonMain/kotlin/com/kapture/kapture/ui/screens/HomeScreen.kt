@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +31,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.painterResource
 
+// Home Screen displaying the main interface with options to add and retrieve Ideas
 @Composable
 fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate) {
     var toastMessage by remember { mutableStateOf<String?>(null) }
@@ -51,7 +51,7 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
         releasedItemState = state
     }
 
-    var scheduler = remember { createReminderScheduler() }
+    val scheduler = remember { createReminderScheduler() }
 
     if (showDialog) {
         Dialog(

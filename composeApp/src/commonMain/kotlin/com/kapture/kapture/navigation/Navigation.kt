@@ -5,17 +5,20 @@ import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 
+// Screens for Navigation
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Archive : Screen("archive")
 }
 
+// Data class for Navigation Item
 data class NavigationItem(
     val name: String,
     val icon: ImageVector,
     val route: String,
 )
 
+// Enum class for Navigation Index
 enum class NavigationIndex(val index: Int) {
     HOME_SCREEN(0),
     ARCHIVE_SCREEN(1);
@@ -27,6 +30,7 @@ enum class NavigationIndex(val index: Int) {
     }
 }
 
+// Object for managing Navigation Items
 object Navigation {
 
     private val items = listOf(
