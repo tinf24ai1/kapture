@@ -1,36 +1,41 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# kapture - Kotlin Idea-Time-Capsule App
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-    - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-      For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-      the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-      Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-      folder is the appropriate location.
+kapture is a Kotlin-Multiplatform application designed to allow users to decide if an idea is good or not by putting it in a digital Time-Capsule released on a random date.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+With kapture, users can create and describe an idea and set a future date range for when they want to be reminded of it. On the randomly selected date, the app will notify the user to revisit their idea and evaluate its worth.
 
-### Build and Run Android Application
+If the user finds the idea valuable, they can choose to keep it in a permanent archive; otherwise, they can discard it or be reminded within the same date range again.
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
+## Features
+- Create and store ideas with descriptions
+- Set a future date range for idea review
+- Receive notifications on a randomly selected date within the specified range
+- Evaluate and archive, postpone or discard ideas
+- Cross-platform support for Android and iOS
+- User-friendly interface for easy idea management
+- Local data storage
+- Offline functionality
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+## Example User Flow
 
-### Build and Run iOS Application
+![Example User Flow](./assets/example-user-flow.png)
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+1. User opens the kapture app and selects "+" (Add Idea)
+2. User enters the idea title, description, and selects a future date range for review
+3. The app saves the idea and sets a notification for a random date within the specified range
+4. On the notification date, the user is prompted to review the idea
+5. User decides to either archive, postpone, or discard the idea
 
----
+<div style="display: flex;">
+  <img src="./assets/add-idea-screenshot.png" alt="Add Idea Screenshot" style="width:50%; padding: 10px; height:auto;">
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+  <img src="./assets/idea-review-screenshot.png" alt="Idea Review Screenshot" style="width:50%; padding: 10px; height:auto;">
+</div>
+
+## Used Technologies
+
+- Kotlin Multiplatform Mobile (KMM)
+- Jetpack Compose
+- AlarmManager (Android)
+- UserNotifications Framework (iOS)
+- Local Storage
