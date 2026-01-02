@@ -19,6 +19,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.navigation.Navigation
 import com.kapture.kapture.navigation.NavigationIndex
 import com.kapture.kapture.navigation.Screen
@@ -38,6 +39,7 @@ import kotlin.random.Random
 @Composable
 fun BottomNavigationBar(
     minHeap: MinHeap,
+    aiViewModel: AIViewModel
 ) {
 
     // Function to calculate a random release date within a specified range
@@ -110,7 +112,7 @@ fun BottomNavigationBar(
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(minHeap, addToArchiveList, releaseDate)
+                HomeScreen(minHeap, addToArchiveList, releaseDate, aiViewModel)
             }
             composable(Screen.Archive.route) {
                 ArchiveScreen(archiveList, rmFromArchiveList)

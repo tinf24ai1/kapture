@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AIViewModel(private val aiService: AIService) : ViewModel() {
@@ -17,11 +18,23 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
             _uiState.value = IdeaState.Loading
 
             try {
-                val result = aiService.getSuggestion().split(";", limit = 2).map { x: String -> x.trim() }
+                val response = aiService.getSuggestion()
 
-                _uiState.value = IdeaState.Success(result[0], result[1])
+                if (response.error != null) {
+                    throw Exception("Gemini Error: ${response.error.message}")
+                }
+
+                val suggestion = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+
+                if (suggestion.isNullOrBlank()) {
+                    throw Exception("No response from AI: The choices list was empty.")
+                }
+
+                val result = suggestion.split(";", limit = 2).map { x: String -> x.trim() }
+
+                _uiState.update { IdeaState.Success(result[0], result[1]) }
             } catch (e: Exception) {
-                _uiState.value = IdeaState.Failure(e.message ?: "Unknown Error")
+                _uiState.update { IdeaState.Failure(e.message ?: "Unknown Error") }
             }
         }
     }

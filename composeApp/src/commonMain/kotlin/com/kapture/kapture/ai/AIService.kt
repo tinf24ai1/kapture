@@ -18,12 +18,13 @@ class AIService(private val apiKey: String) {
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
+                isLenient = true
                 encodeDefaults = true
             })
         }
     }
 
-    suspend fun getSuggestion(): String {
+    suspend fun getSuggestion(): GeminiResponse {
 
         val prompt: String =
             "You are a creative brainstorming assistant. Based on the user's context and draft, generate a single, high-quality project or content idea.\n" +
@@ -32,7 +33,7 @@ class AIService(private val apiKey: String) {
             "\n" +
             "Do not include any introductory text, quotes, or conversational filler. Only provide the Title; Description"
 
-        val response: GeminiResponse = client.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey") {
+        val response: GeminiResponse = client.post("https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=$apiKey") {
             contentType(ContentType.Application.Json)
             setBody(
                 GeminiRequest(
@@ -47,17 +48,7 @@ class AIService(private val apiKey: String) {
             )
         }.body()
 
-        if (response.error != null) {
-            throw Exception("Gemini Error: ${response.error.message}")
-        }
-
-        val suggestion = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-
-        if (suggestion.isNullOrBlank()) {
-            throw Exception("No response from AI: The choices list was empty.")
-        }
-
-        return suggestion
+        return response
     }
 
 }
