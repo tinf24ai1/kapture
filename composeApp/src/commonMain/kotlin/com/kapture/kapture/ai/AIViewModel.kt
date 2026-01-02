@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
 class AIViewModel(private val aiService: AIService) : ViewModel() {
 
     private val _uiState = MutableStateFlow<IdeaState>(IdeaState.Idle)
@@ -18,9 +17,9 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
             _uiState.value = IdeaState.Loading
 
             try {
-                val result = aiService.getSuggestion()
+                val result = aiService.getSuggestion().split(";", limit = 2).map { x: String -> x.trim() }
 
-                _uiState.value = IdeaState.Success(result.split(";", limit = 2)[0], result.split(";", limit = 2)[1])
+                _uiState.value = IdeaState.Success(result[0], result[1])
             } catch (e: Exception) {
                 _uiState.value = IdeaState.Failure(e.message ?: "Unknown Error")
             }

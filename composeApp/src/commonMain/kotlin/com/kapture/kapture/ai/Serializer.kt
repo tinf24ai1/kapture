@@ -3,27 +3,32 @@ package com.kapture.kapture.ai
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChatRequest(
-    val model: String = "gpt-4o-mini",
-    val messages: List<ChatMessage>,
-    val temperature: Double = 0.7
+data class GeminiRequest(
+    val contents: List<Content>
 )
 
 @Serializable
-data class ChatMessage(val role: String, val content: String)
-
-@Serializable
-data class OpenAIError(
-    val message: String,
-    val type: String? = null,
-    val code: String? = null
+data class Content(
+    val parts: List<Part>
 )
 
 @Serializable
-data class ChatResponse(
-    val choices: List<Choice> = emptyList(),
-    val error: OpenAIError? = null
+data class Part(
+    val text: String
 )
 
 @Serializable
-data class Choice(val message: ChatMessage)
+data class GeminiResponse(
+    val candidates: List<Candidate>? = null,
+    val error: GeminiError? = null
+)
+
+@Serializable
+data class Candidate(
+    val content: Content
+)
+
+@Serializable
+data class GeminiError(
+    val message: String
+)

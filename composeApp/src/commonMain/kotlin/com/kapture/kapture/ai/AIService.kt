@@ -32,24 +32,26 @@ class AIService(private val apiKey: String) {
             "\n" +
             "Do not include any introductory text, quotes, or conversational filler. Only provide the Title; Description"
 
-        val response: ChatResponse = client.post("https://api.openai.com/v1/chat/completions") {
-            header("Authorization", "Bearer $apiKey")
+        val response: GeminiResponse = client.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey") {
             contentType(ContentType.Application.Json)
             setBody(
-                ChatRequest(
-                    model = "gpt-4o-mini",
-                    messages = listOf(
-                        ChatMessage("system", prompt)
+                GeminiRequest(
+                    contents = listOf(
+                        Content(
+                            listOf(
+                                Part(text = prompt)
+                            )
+                        )
                     )
                 )
             )
         }.body()
 
         if (response.error != null) {
-            throw Exception("OpenAI Error: ${response.error.message}")
+            throw Exception("Gemini Error: ${response.error.message}")
         }
 
-        val suggestion = response.choices.firstOrNull()?.message?.content
+        val suggestion = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
 
         if (suggestion.isNullOrBlank()) {
             throw Exception("No response from AI: The choices list was empty.")
