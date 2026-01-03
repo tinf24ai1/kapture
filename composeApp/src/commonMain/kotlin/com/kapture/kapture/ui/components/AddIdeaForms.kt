@@ -101,7 +101,7 @@ fun AddIdeaForms(
 
             Button(
                 onClick = {
-                    aiViewModel.onGenerateClicked()
+                    aiViewModel.onGenerateClicked(title, desc)
                 },
                 enabled = !isLoading,
                 modifier = Modifier.weight(1f).height(56.dp),
@@ -134,7 +134,7 @@ fun AddIdeaForms(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Use Google Gemini to generate an Idea",
+                        text = "Use Google Gemini to generate or rewrite your Idea",
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -239,7 +239,10 @@ fun AddIdeaForms(
             }
 
             OutlinedButton(
-                onClick = onCancel,
+                onClick = {
+                    setAiErrorMessage("")
+                    onCancel()
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.Cancel, Icons.Rounded.Cancel::class.qualifiedName)

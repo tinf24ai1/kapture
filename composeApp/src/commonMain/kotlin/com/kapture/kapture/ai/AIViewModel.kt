@@ -12,13 +12,13 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
     private val _uiState = MutableStateFlow<IdeaState>(IdeaState.Idle)
     val uiState = _uiState.asStateFlow()
 
-    fun onGenerateClicked() {
+    fun onGenerateClicked(title: String, desc: String) {
 
         viewModelScope.launch {
             _uiState.value = IdeaState.Loading
 
             try {
-                val response = aiService.getSuggestion()
+                val response = aiService.getSuggestion(title, desc)
 
                 if (response.error != null) {
                     throw Exception("Gemini Error: ${response.error.message}")

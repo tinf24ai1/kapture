@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import com.kapture.kapture.ai.AIService
 import com.kapture.kapture.ai.AIViewModel
 
+const val API_KEY = "YOUR_API_KEY_GOES_HERE"
+
 @Composable
 @Preview
 fun App(
@@ -27,7 +29,7 @@ fun App(
         heap
     }
 
-    val aiService = AIService("")
+    val aiService = AIService(API_KEY)
 
     val aiViewModel = AIViewModel(aiService)
 
