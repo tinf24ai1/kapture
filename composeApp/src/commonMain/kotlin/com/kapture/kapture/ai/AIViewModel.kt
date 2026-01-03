@@ -39,4 +39,8 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
             }
         }
     }
+
+    fun resetState() {
+        _uiState.value = IdeaState.Idle
+    }
 }

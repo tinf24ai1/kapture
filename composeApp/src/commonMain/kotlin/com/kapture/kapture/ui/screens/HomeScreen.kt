@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -16,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.createReminderScheduler
@@ -60,11 +63,18 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
 
     val scheduler = remember { createReminderScheduler() }
 
+    // State for AI Assistant (IdeaState)
+    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
+
     if (showSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
+            onDismissRequest = {
+                aiViewModel.resetState()
+                showSheet = false
+            },
             sheetState = sheetState
         ) {
+
             AddIdeaForms(
                 onSubmit = { title, releaseDate, idea, startDate, endDate ->
                     Logger.d(
@@ -77,6 +87,7 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
 
                     scheduler.schedule(newItem, hour = 10, minute = 0)
 
+                    aiViewModel.resetState()
                     showSheet = false
                 },
                 displayToastMessage = displayToastMessage,
@@ -86,11 +97,13 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                         sheetState.hide()
                     }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
+                            aiViewModel.resetState()
                             showSheet = false
                         }
                     }
                 },
-                aiViewModel = aiViewModel
+                aiViewModel = aiViewModel,
+                state = state
             )
         }
     }
