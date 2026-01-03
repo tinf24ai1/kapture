@@ -16,16 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.ai.IdeaState
 import com.kapture.kapture.logger.Logger
+import dev.icerock.moko.resources.compose.stringResource
+import kapture.composeApp.MR
 import kotlinx.datetime.*
 
 // Form component to add a new Idea with title, description and trigger range
 @Composable
 fun AddIdeaForms(
-    modifier: Modifier = Modifier,
     onSubmit: (title: String, releaseDate: LocalDate, idea: String, startDate: Int, endDate: Int) -> Unit = { _, _, _, _, _ -> },
     onCancel: () -> Unit = {},
     displayToastMessage: (String) -> Unit = {},
@@ -49,12 +49,12 @@ fun AddIdeaForms(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Add a New Idea", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(MR.strings.add_idea_title), style = MaterialTheme.typography.titleLarge)
 
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Idea") },
+            label = { Text(stringResource(MR.strings.add_idea_title_label)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -89,7 +89,7 @@ fun AddIdeaForms(
         OutlinedTextField(
             value = desc,
             onValueChange = { desc = it },
-            label = { Text("Description") },
+            label = { Text(stringResource(MR.strings.add_idea_desc_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
@@ -136,7 +136,7 @@ fun AddIdeaForms(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Use Google Gemini to generate or rewrite your Idea",
+                        text = stringResource(MR.strings.add_idea_google_gemini),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -163,7 +163,7 @@ fun AddIdeaForms(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Oops... Something went wrong",
+                        text = stringResource(MR.strings.add_idea_google_gemini_failure),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -179,7 +179,7 @@ fun AddIdeaForms(
         }
 
         Text(
-            text = "Capsule Trigger Range",
+            text = stringResource(MR.strings.add_idea_trigger_range_label)
         )
         Surface(
             modifier = Modifier.height(115.dp),
@@ -190,6 +190,18 @@ fun AddIdeaForms(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+
+                val start = sliderPosition.start.toInt()
+                val end = sliderPosition.endInclusive.toInt()
+
+                val dayLabel = stringResource(MR.plurals.days, end, end)
+
+                val addIdeaReadyString: String = if (start == end) {
+                    stringResource(MR.strings.add_idea_ready_in_single, start, dayLabel)
+                } else {
+                    stringResource(MR.strings.add_idea_ready_in_range, start, end, dayLabel)
+                }
+
                 RangeSlider(
                     value = sliderPosition,
                     steps = 12,
@@ -198,14 +210,7 @@ fun AddIdeaForms(
                     colors = SliderDefaults.colors(),
                 )
                 Text(
-                    text = "Ready in ${
-                        if (sliderPosition.start.toInt() == sliderPosition.endInclusive.toInt())
-                            "${sliderPosition.start.toInt()}"
-                        else
-                            "${sliderPosition.start.toInt()} to ${sliderPosition.endInclusive.toInt()}"
-                    } Day${
-                        if (sliderPosition.endInclusive.toInt() != 1) "s" else ""
-                    }",
+                    text = addIdeaReadyString,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,
@@ -224,6 +229,9 @@ fun AddIdeaForms(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            val toastAddedIdea: String = stringResource(MR.strings.toast_added_idea)
+
             Button(
                 onClick = {
                     onSubmit(
@@ -233,7 +241,7 @@ fun AddIdeaForms(
                         sliderPosition.start.toInt(),
                         sliderPosition.endInclusive.toInt()
                     )
-                    displayToastMessage("Added Idea")
+                    displayToastMessage(toastAddedIdea)
                 },
                 enabled = (title.trim() != "" && desc.trim() != ""),
                 modifier = Modifier.weight(1f)

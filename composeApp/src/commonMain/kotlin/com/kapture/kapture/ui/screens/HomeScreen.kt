@@ -25,6 +25,8 @@ import com.kapture.kapture.storage.ItemList
 import com.kapture.kapture.ui.components.AddIdeaForms
 import com.kapture.kapture.ui.components.DisplayIdea
 import com.kapture.kapture.ui.components.ToastHost
+import dev.icerock.moko.resources.compose.stringResource
+import kapture.composeApp.MR
 import kapture.composeapp.generated.resources.Res
 import kapture.composeapp.generated.resources.gumballmachine
 import kotlinx.coroutines.launch
@@ -117,7 +119,6 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                 displayToastMessage = displayToastMessage,
                 onClose = {
                     changeReleasedItemState(null)
-
                 }
             )
         }
@@ -130,7 +131,7 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "Kapture",
+                text = stringResource(MR.strings.home_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -148,7 +149,7 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                     ) {
                         Image(
                             painter = painterResource(Res.drawable.gumballmachine),
-                            contentDescription = "Gumball Machine",
+                            contentDescription = Res.drawable.gumballmachine::class.qualifiedName,
                             modifier = Modifier.fillMaxSize().padding(16.dp),
                             contentScale = ContentScale.Crop,
                         )
@@ -159,6 +160,8 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
 
+                    val toastNoIdeaReady: String = stringResource(MR.strings.toast_no_idea_ready)
+
                     FloatingActionButton(
                         onClick = {
                             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -166,7 +169,7 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                             if (topItem != null && topItem.releaseDate <= today) {
                                 changeReleasedItemState(itemList.poll())
                             } else {
-                                displayToastMessage("Currently no Idea ready!")
+                                displayToastMessage(toastNoIdeaReady)
                             }
                         },
                     ) {

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- AddIdeaForms -->
+    <string name="add_idea_title">Add New Idea</string>
+    <string name="add_idea_title_label">Idea</string>
+    <string name="add_idea_desc_label">Description</string>
+    <string name="add_idea_google_gemini">Use Google Gemini to generate or rewrite your Idea</string>
+    <string name="add_idea_google_gemini_failure">Oops... Something went wrong</string>
+    <string name="add_idea_trigger_range_label">Capsule Trigger Range</string>
+    <string name="add_idea_ready_in_single">Ready in %1$d %2$s</string>
+    <string name="add_idea_ready_in_range">Ready in %1$d to %2$d %3$s</string>
+
+    <!-- DisplayIdea -->
+    <string name="display_idea_title">Your Idea is ready</string>
+
+    <!-- NotificationDeniedDialog -->
+    <string name="notification_denied_title">Notifications disabled</string>
+    <string name="notification_denied_text">
+        In order to use the time capsule feature to its fullest, you need to allow notifications.
+        If you change your mind, you can enable notifications in the app settings.
+    </string>
+
+    <!-- Toast Messages -->
+    <string name="toast_added_idea">Added Idea</string>
+    <string name="toast_postponed_idea">Idea back in Capsule</string>
+    <string name="toast_archived_idea">Idea saved to Archive</string>
+    <string name="toast_discarded_idea">Removed Idea</string>
+    <string name="toast_no_idea_ready">Currently no Idea ready</string>
+
+    <!-- ArchiveScreen -->
+    <string name="archive_title">Archive</string>
+    <string name="archive_no_idea_archived">No Idea archived</string>
+
+    <!-- HomeScreen -->
+    <string name="home_title">Kapture</string>
+
+    <!-- Notifications -->
+    <string name="notification_title">A new time capsule is ready!</string>
+    <string name="notification_message">Check it out in your Kapture</string>
+
+</resources>

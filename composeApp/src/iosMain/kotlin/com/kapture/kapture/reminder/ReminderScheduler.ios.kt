@@ -38,7 +38,6 @@ class IOSReminderScheduler : ReminderScheduler {
             trigger = trigger
         )
 
-
         val hm = "${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}"
 
         Logger.i(
