@@ -30,13 +30,12 @@ fun AddIdeaForms(
     onCancel: () -> Unit = {},
     displayToastMessage: (String) -> Unit = {},
     releaseDate: (Int, Int) -> LocalDate,
-    aiViewModel: AIViewModel
+    aiViewModel: AIViewModel,
+    state: IdeaState
 ) {
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
     var sliderPosition by remember { mutableStateOf(1f..14f) }
-
-    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
 
     var isLoading by remember { mutableStateOf(false) }
     val setIsLoading = { b: Boolean -> isLoading = b }
@@ -60,29 +59,30 @@ fun AddIdeaForms(
         )
 
         // Handle the different AI idea generation states
-        when (state) {
-            is IdeaState.Failure -> {
-                setIsLoading(false)
-                setAiErrorMessage((state as IdeaState.Failure).message)
+        LaunchedEffect(state) {
+            when (state) {
+                is IdeaState.Failure -> {
+                    setIsLoading(false)
+                    setAiErrorMessage(state.message)
 
-                Logger.e("IdeaState.Failure", aiErrorMessage)
-            }
-            is IdeaState.Idle -> {
+                    Logger.e("IdeaState.Failure", aiErrorMessage)
+                }
+                is IdeaState.Idle -> {
+                }
+                is IdeaState.Loading -> {
+                    setIsLoading(true)
+                    setAiErrorMessage("")
+                }
+                is IdeaState.Success -> {
+                    setIsLoading(false)
+                    setAiErrorMessage("")
 
-            }
-            is IdeaState.Loading -> {
-                setIsLoading(true)
-                setAiErrorMessage("")
-            }
-            is IdeaState.Success -> {
-                setIsLoading(false)
-                setAiErrorMessage("")
+                    title = state.title
+                    desc = state.desc
 
-                title = (state as IdeaState.Success).title
-                desc = (state as IdeaState.Success).desc
-
-                Logger.d("Response Title", (state as IdeaState.Success).title)
-                Logger.d("Response Description", (state as IdeaState.Success).desc)
+                    Logger.d("Response Title", state.title)
+                    Logger.d("Response Description", state.desc)
+                }
             }
         }
 

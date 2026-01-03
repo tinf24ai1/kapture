@@ -31,6 +31,10 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
                     throw Exception("No response from AI: The choices list was empty.")
                 }
 
+                if (!suggestion.contains(";")) {
+                    throw Exception("AI returned string in wrong formatting.")
+                }
+
                 val result = suggestion.split(";", limit = 2).map { x: String -> x.trim() }
 
                 _uiState.update { IdeaState.Success(result[0], result[1]) }
@@ -38,5 +42,9 @@ class AIViewModel(private val aiService: AIService) : ViewModel() {
                 _uiState.update { IdeaState.Failure(e.message ?: "Unknown Error") }
             }
         }
+    }
+
+    fun resetState() {
+        _uiState.value = IdeaState.Idle
     }
 }

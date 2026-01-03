@@ -8,6 +8,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -59,11 +60,18 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
 
     val scheduler = remember { createReminderScheduler() }
 
+    // State for AI Assistant (IdeaState)
+    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
+
     if (showSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
+            onDismissRequest = {
+                aiViewModel.resetState()
+                showSheet = false
+            },
             sheetState = sheetState
         ) {
+
             AddIdeaForms(
                 onSubmit = { title, releaseDate, idea, startDate, endDate ->
                     Logger.d(
@@ -71,11 +79,12 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                         "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                     )
 
-                    val newItemModel = ItemModel(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
-                    itemList.add(newItemModel)
+                    val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
+                    minHeap.add(newItem)
 
-                    scheduler.schedule(newItemModel, hour = 10, minute = 0)
+                    scheduler.schedule(newItem, hour = 10, minute = 0)
 
+                    aiViewModel.resetState()
                     showSheet = false
                 },
                 displayToastMessage = displayToastMessage,
@@ -85,11 +94,13 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                         sheetState.hide()
                     }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
+                            aiViewModel.resetState()
                             showSheet = false
                         }
                     }
                 },
-                aiViewModel = aiViewModel
+                aiViewModel = aiViewModel,
+                state = state
             )
         }
     }
