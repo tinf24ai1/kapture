@@ -8,6 +8,8 @@ If the user finds the idea valuable, they can choose to keep it in a permanent a
 
 ## Features
 - Create and store ideas with descriptions
+- Use AI assistance to generate idea titles and descriptions
+- Use AI assistance to rewrtite idea titles and descriptions
 - Set a future date range for idea review
 - Receive notifications on a randomly selected date within the specified range
 - Evaluate and archive, postpone or discard ideas
@@ -39,3 +41,9 @@ If the user finds the idea valuable, they can choose to keep it in a permanent a
 - AlarmManager (Android)
 - UserNotifications Framework (iOS)
 - Local Storage
+
+# Library Dependencies
+
+- Ktor for networking - Gemini API-Calls
+- Moko Resources for resource management
+- Russhwolf for key-value storage
