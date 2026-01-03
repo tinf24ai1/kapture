@@ -1,5 +1,6 @@
 package com.kapture.kapture.storage
 
+// Local implementation of ItemRepository using LocalStorage
 object LocalItemRepository : ItemRepository {
 
     private const val LOCAL_ITEMS_KEY = "ideaList"
