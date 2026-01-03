@@ -11,13 +11,16 @@ import com.kapture.kapture.reminder.IdeaAlarmReceiver.Companion.EXTRA_ITEM_ID
 import com.kapture.kapture.reminder.IdeaAlarmReceiver.Companion.EXTRA_TITLE
 import com.kapture.kapture.settings.AndroidContextHolder
 import com.kapture.kapture.storage.ItemModel
+import dev.icerock.moko.resources.format
+import kapture.composeApp.MR
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import java.util.Calendar
 
-private const val NOTIF_TITLE = "A new time capsule is ready!"
-private const val NOTIF_MESSAGE = "Check it out in your Kapture"
+
+private val NOTIF_TITLE = MR.strings.notification_title.format()
+private val NOTIF_MESSAGE = MR.strings.notification_message.format()
 
 class AndroidReminderScheduler(
     private val ctx: Context
@@ -28,7 +31,7 @@ class AndroidReminderScheduler(
     override fun schedule(itemModel: ItemModel, hour: Int, minute: Int) {
         val triggerAtMillis = computeTriggerMillis(itemModel, hour, minute)
 
-        val pi = pendingIntentFor(itemModel, title = NOTIF_TITLE, body = NOTIF_MESSAGE)
+        val pi = pendingIntentFor(itemModel, title = NOTIF_TITLE.toString(ctx), body = NOTIF_MESSAGE.toString(ctx))
 
         alarmManager.cancel(pi)
 

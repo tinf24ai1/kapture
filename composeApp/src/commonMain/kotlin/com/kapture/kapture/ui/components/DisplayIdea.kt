@@ -17,10 +17,12 @@ import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.ReminderScheduler
 import com.kapture.kapture.storage.ItemModel
 import com.kapture.kapture.storage.ItemList
+import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
+import kapture.composeApp.MR
 
 // Pop-up component to display an Idea with options to Reschedule, Archive or Delete
 @Composable
@@ -54,13 +56,13 @@ fun DisplayIdea(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Your Idea is ready",
+                    text = stringResource(MR.strings.display_idea_title),
                     style = MaterialTheme.typography.titleLarge
                 )
                 IconButton(onClick = onClose) {
                     Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = "Close"
+                        Icons.Rounded.Close,
+                        Icons.Rounded.Close::class.qualifiedName
                     )
                 }
             }
@@ -129,6 +131,8 @@ fun DisplayIdea(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
+                val toastPostponedIdea: String = stringResource(MR.strings.toast_postponed_idea)
+
                 // Reschedule Button
                 Button(
                     onClick = {
@@ -142,7 +146,7 @@ fun DisplayIdea(
                         itemList.add(i)
                         scheduler.schedule(i, hour = 10, minute = 0)
                         Logger.i("Item", "Item '${i.title}' got new timestamp assigned: ${i.releaseDate}")
-                        displayToastMessage("Idea is back in Capsule")
+                        displayToastMessage(toastPostponedIdea)
                         onClose()
                     },
                     modifier = Modifier.weight(1f)
@@ -150,12 +154,14 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Refresh, Icons.Rounded.Refresh::class.qualifiedName)
                 }
 
+                val toastArchivedIdea: String = stringResource(MR.strings.toast_archived_idea)
+
                 // Archive Button
                 Button(
                     onClick = {
                         addToArchiveList(itemModel)
                         Logger.i("Item", "Item '${itemModel.title}' got moved to archive")
-                        displayToastMessage("Idea saved to Archive")
+                        displayToastMessage(toastArchivedIdea)
                         onClose()
                     },
                     modifier = Modifier.weight(1f)
@@ -163,10 +169,12 @@ fun DisplayIdea(
                     Icon(Icons.Rounded.Archive, Icons.Rounded.Archive::class.qualifiedName)
                 }
 
+                val toastDiscardedIdea: String = stringResource(MR.strings.toast_discarded_idea)
+
                 // Discard Button
                 Button(
                     onClick = {
-                        displayToastMessage("Idea removed")
+                        displayToastMessage(toastDiscardedIdea)
                         onClose()
                     },
                     modifier = Modifier.weight(1f)

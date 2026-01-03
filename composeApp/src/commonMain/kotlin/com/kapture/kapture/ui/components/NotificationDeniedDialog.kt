@@ -4,6 +4,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import dev.icerock.moko.resources.compose.stringResource
+import kapture.composeApp.MR
 
 // Simple reusable dialog shown when notifications were denied.
 @Composable
@@ -20,12 +22,9 @@ fun NotificationsDeniedDialog(
                 Text("OK")
             }
         },
-        title = { Text("Notifications disabled") },
+        title = { Text(stringResource(MR.strings.notification_denied_title)) },
         text = {
-            Text(
-                "In order to use the time capsule feature to its fullest, you need to allow notifications. " +
-                        "If you change your mind, you can enable notifications in the app settings."
-            )
+            Text(stringResource(MR.strings.notification_denied_text))
         }
     )
 }

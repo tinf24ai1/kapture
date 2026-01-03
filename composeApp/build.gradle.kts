@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
+    alias(libs.plugins.moko.resources)
+
     kotlin("plugin.serialization") version "2.0.21"
 }
 
@@ -51,6 +54,9 @@ kotlin {
             implementation("io.ktor:ktor-client-core:3.3.3")
             implementation("io.ktor:ktor-client-content-negotiation:3.3.3")
             implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.3")
+
+            implementation(libs.resources)
+            implementation(libs.resources.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
