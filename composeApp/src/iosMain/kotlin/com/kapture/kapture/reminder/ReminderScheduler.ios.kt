@@ -1,6 +1,6 @@
 package com.kapture.kapture.reminder
 
-import com.kapture.kapture.storage.Item
+import com.kapture.kapture.storage.ItemModel
 import platform.Foundation.NSDateComponents
 import platform.UserNotifications.*
 import com.kapture.kapture.logger.Logger
@@ -10,9 +10,9 @@ private const val NOTIF_TITLE = "A new time capsule is ready!"
 private const val NOTIF_MESSAGE = "Check it out in your Kapture"
 class IOSReminderScheduler : ReminderScheduler {
 
-    override fun schedule(item: Item, hour: Int, minute: Int) {
+    override fun schedule(itemModel: ItemModel, hour: Int, minute: Int) {
         // Build NSDateComponents from LocalDate + hh:mm
-        val d = item.releaseDate
+        val d = itemModel.releaseDate
         val comps = NSDateComponents().apply {
             year = d.year.toLong()
             month = d.monthNumber.toLong()
@@ -33,7 +33,7 @@ class IOSReminderScheduler : ReminderScheduler {
         )
 
         val request = UNNotificationRequest.requestWithIdentifier(
-            identifier = item.title,
+            identifier = itemModel.title,
             content = content,
             trigger = trigger
         )
@@ -43,7 +43,7 @@ class IOSReminderScheduler : ReminderScheduler {
 
         Logger.i(
             "Reminder",
-            "iOS plant '${item.title}' für ${item.releaseDate} $hm"
+            "iOS plant '${itemModel.title}' für ${itemModel.releaseDate} $hm"
 
         )
 

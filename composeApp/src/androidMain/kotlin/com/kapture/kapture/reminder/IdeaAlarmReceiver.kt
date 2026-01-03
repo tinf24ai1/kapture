@@ -5,8 +5,9 @@ import android.content.Context
 import android.content.Intent
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.notifications.NotificationService
-import com.kapture.kapture.storage.HeapUpdate
-import com.kapture.kapture.storage.Item
+import com.kapture.kapture.storage.StorageUpdate
+import com.kapture.kapture.storage.ItemModel
+import com.kapture.kapture.storage.LocalItemRepository
 import com.kapture.kapture.storage.LocalStorage
 
 class IdeaAlarmReceiver : BroadcastReceiver() {
@@ -17,8 +18,8 @@ class IdeaAlarmReceiver : BroadcastReceiver() {
         val itemId = intent.getStringExtra(EXTRA_ITEM_ID) ?: "unknown"
 
         // Check if already notified
-        val items: List<Item> = LocalStorage.restore("MinHeap") ?: emptyList()
-        val item = items.firstOrNull { it.id == itemId } ?: return
+        val itemModels: List<ItemModel> = LocalItemRepository.load()
+        val item = itemModels.firstOrNull { it.id == itemId } ?: return
 
         if (item.notified) {
             Logger.i("Reminder", "Skip: already notified itemId=$itemId")
@@ -43,7 +44,7 @@ class IdeaAlarmReceiver : BroadcastReceiver() {
                 Logger.i("Reminder", "Failed to show notification: ${e.message}")
             }
             // Mark as notified
-            HeapUpdate.markNotified(itemId)
+            StorageUpdate.markNotified(itemId)
         } else {
             Logger.i("Reminder", "POST_NOTIFICATIONS permission not granted; skipping notification")
         }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Casino
-import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,8 +18,8 @@ import androidx.compose.ui.window.Dialog
 import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.createReminderScheduler
-import com.kapture.kapture.storage.Item
-import com.kapture.kapture.storage.MinHeap
+import com.kapture.kapture.storage.ItemModel
+import com.kapture.kapture.storage.ItemList
 import com.kapture.kapture.ui.components.AddIdeaForms
 import com.kapture.kapture.ui.components.DisplayIdea
 import com.kapture.kapture.ui.components.ToastHost
@@ -36,7 +35,7 @@ import org.jetbrains.compose.resources.painterResource
 // Home Screen displaying the main interface with options to add and retrieve Ideas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate, aiViewModel: AIViewModel) {
+fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, releaseDate: (Int, Int) -> LocalDate, aiViewModel: AIViewModel) {
     var toastMessage by remember { mutableStateOf<String?>(null) }
     val clearToastMessage: () -> Unit = {
         toastMessage = null
@@ -53,9 +52,9 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
     )
     val scope = rememberCoroutineScope()
 
-    var releasedItemState by remember { mutableStateOf<Item?>(null) }
-    fun changeReleasedItemState(state: Item?) {
-        releasedItemState = state
+    var releasedItemModelState by remember { mutableStateOf<ItemModel?>(null) }
+    fun changeReleasedItemState(state: ItemModel?) {
+        releasedItemModelState = state
     }
 
     val scheduler = remember { createReminderScheduler() }
@@ -72,10 +71,10 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                         "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                     )
 
-                    val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
-                    minHeap.add(newItem)
+                    val newItemModel = ItemModel(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
+                    itemList.add(newItemModel)
 
-                    scheduler.schedule(newItem, hour = 10, minute = 0)
+                    scheduler.schedule(newItemModel, hour = 10, minute = 0)
 
                     showSheet = false
                 },
@@ -95,11 +94,11 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
         }
     }
 
-    releasedItemState?.let { item ->
+    releasedItemModelState?.let { item ->
         Dialog(onDismissRequest = { }) {
             DisplayIdea(
-                item = item,
-                minHeap = minHeap,
+                itemModel = item,
+                itemList = itemList,
                 releaseDate = releaseDate,
                 scheduler = scheduler,
                 addToArchiveList = addToArchiveList,
@@ -151,9 +150,9 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                     FloatingActionButton(
                         onClick = {
                             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                            val topItem = minHeap.peek()
+                            val topItem = itemList.peek()
                             if (topItem != null && topItem.releaseDate <= today) {
-                                changeReleasedItemState(minHeap.poll())
+                                changeReleasedItemState(itemList.poll())
                             } else {
                                 displayToastMessage("Currently no Idea ready!")
                             }

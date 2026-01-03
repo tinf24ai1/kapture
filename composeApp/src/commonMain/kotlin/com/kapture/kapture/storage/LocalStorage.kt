@@ -1,7 +1,6 @@
 package com.kapture.kapture.storage
 
 import com.kapture.kapture.logger.Logger
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.russhwolf.settings.Settings
 
@@ -28,22 +27,26 @@ object LocalStorage {
     }
 
     // Restore a value by key from LocalStorage
-    internal inline fun <reified T> restore(key: String): T? {
+    internal inline fun <reified T> load(key: String): T {
         val encoded = settings.getStringOrNull(key)
 
         if (encoded == null) {
             Logger.i("LocalStorage", "No data found for key='$key'")
-            return null
+            throw Exception("No data found for key='$key'")
         }
 
-        return try {
+        try {
             val decoded = json.decodeFromString<T>(encoded)
             Logger.d("LocalStorage", "Restored key='$key' (type=${T::class.simpleName})")
-            decoded
+            return decoded
         } catch (e: Exception){
             Logger.e("LocalStorage", "Error decoding key='$key': ${e.message}")
-            null
+            throw Exception(e)
         }
+    }
+
+    fun clear(key: String) {
+        settings.remove(key)
     }
 
     fun isset(key: String): Boolean = settings.hasKey(key)

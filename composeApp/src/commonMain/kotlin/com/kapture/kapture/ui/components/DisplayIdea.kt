@@ -12,12 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.ReminderScheduler
-import com.kapture.kapture.storage.Item
-import com.kapture.kapture.storage.MinHeap
+import com.kapture.kapture.storage.ItemModel
+import com.kapture.kapture.storage.ItemList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
@@ -26,10 +25,10 @@ import kotlinx.datetime.format.char
 // Pop-up component to display an Idea with options to Reschedule, Archive or Delete
 @Composable
 fun DisplayIdea(
-    item: Item,
-    minHeap: MinHeap,
+    itemModel: ItemModel,
+    itemList: ItemList,
     releaseDate: (Int, Int) -> LocalDate,
-    addToArchiveList: (Item) -> Unit,
+    addToArchiveList: (ItemModel) -> Unit,
     modifier: Modifier = Modifier,
     displayToastMessage: (String) -> Unit,
     onClose: () -> Unit,
@@ -76,13 +75,13 @@ fun DisplayIdea(
                     modifier = Modifier.padding(24.dp)
                 ) {
                     Text(
-                        text = item.title,
+                        text = itemModel.title,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = item.idea,
+                        text = itemModel.idea,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -96,7 +95,7 @@ fun DisplayIdea(
                             onClick = {},
                             label = {
                                 Text(
-                                    text = item.releaseDate.format(LocalDate.Format {
+                                    text = itemModel.releaseDate.format(LocalDate.Format {
                                         dayOfMonth()
                                         chars(". ")
                                         monthName(MonthNames.ENGLISH_FULL)
@@ -133,14 +132,14 @@ fun DisplayIdea(
                 // Reschedule Button
                 Button(
                     onClick = {
-                        val i = Item(
-                            title = item.title,
-                            releaseDate = releaseDate(item.startDate, item.endDate),
-                            idea = item.idea,
-                            startDate = item.startDate,
-                            endDate = item.endDate
+                        val i = ItemModel(
+                            title = itemModel.title,
+                            releaseDate = releaseDate(itemModel.startDate, itemModel.endDate),
+                            idea = itemModel.idea,
+                            startDate = itemModel.startDate,
+                            endDate = itemModel.endDate
                         )
-                        minHeap.add(i)
+                        itemList.add(i)
                         scheduler.schedule(i, hour = 10, minute = 0)
                         Logger.i("Item", "Item '${i.title}' got new timestamp assigned: ${i.releaseDate}")
                         displayToastMessage("Idea is back in Capsule")
@@ -154,8 +153,8 @@ fun DisplayIdea(
                 // Archive Button
                 Button(
                     onClick = {
-                        addToArchiveList(item)
-                        Logger.i("Item", "Item '${item.title}' got moved to archive")
+                        addToArchiveList(itemModel)
+                        Logger.i("Item", "Item '${itemModel.title}' got moved to archive")
                         displayToastMessage("Idea saved to Archive")
                         onClose()
                     },
