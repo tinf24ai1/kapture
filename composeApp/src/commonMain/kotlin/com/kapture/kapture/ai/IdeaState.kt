@@ -1,5 +1,6 @@
 package com.kapture.kapture.ai
 
+// Sealed class representing the state of AI-generated project ideas
 sealed class IdeaState() {
 
     data class Success(

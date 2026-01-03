@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+// ViewModel to manage AI-generated project idea state
 class AIViewModel(private val aiService: AIService) : ViewModel() {
 
     private val _uiState = MutableStateFlow<IdeaState>(IdeaState.Idle)

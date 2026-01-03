@@ -13,6 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import kotlin.String
 
+// Service to interact with AI API for generating project ideas
 class AIService(private val apiKey: String) {
 
     private val client = HttpClient {

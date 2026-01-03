@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import com.kapture.kapture.ai.AIService
 import com.kapture.kapture.ai.AIViewModel
 
+// Google Gemini API Key for AI services
 const val API_KEY = "YOUR_API_KEY_GOES_HERE"
 
 @Composable

@@ -2,6 +2,8 @@ package com.kapture.kapture.ai
 
 import kotlinx.serialization.Serializable
 
+// Data classes for serializing and deserializing Gemini AI API requests and responses
+
 @Serializable
 data class GeminiRequest(
     val contents: List<Content>

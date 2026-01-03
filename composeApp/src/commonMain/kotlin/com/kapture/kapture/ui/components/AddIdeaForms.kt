@@ -59,6 +59,7 @@ fun AddIdeaForms(
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Handle the different AI idea generation states
         when (state) {
             is IdeaState.Failure -> {
                 setIsLoading(false)
@@ -94,6 +95,7 @@ fun AddIdeaForms(
                 .height(120.dp)
         )
 
+        // AI Assistant
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -149,6 +151,7 @@ fun AddIdeaForms(
             }
         }
 
+        // Display AI error message to user if any
         if (aiErrorMessage.isNotEmpty()) {
             Surface(
                 modifier = Modifier.height(38.dp),
