@@ -23,11 +23,12 @@ import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.navigation.Navigation
 import com.kapture.kapture.navigation.NavigationIndex
 import com.kapture.kapture.navigation.Screen
-import com.kapture.kapture.storage.Item
+import com.kapture.kapture.storage.ItemModel
 import com.kapture.kapture.storage.LocalStorage
 import com.kapture.kapture.ui.screens.ArchiveScreen
 import com.kapture.kapture.ui.screens.HomeScreen
-import com.kapture.kapture.storage.MinHeap
+import com.kapture.kapture.storage.ItemList
+import com.kapture.kapture.storage.LocalArchiveRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -38,7 +39,7 @@ import kotlin.random.Random
 // Bottom Navigation Bar with Home and Archive screens
 @Composable
 fun BottomNavigationBar(
-    minHeap: MinHeap,
+    itemList: ItemList,
     aiViewModel: AIViewModel
 ) {
 
@@ -52,22 +53,19 @@ fun BottomNavigationBar(
     }
 
     // Restore archived items from LocalStorage
-    var list = mutableStateListOf<Item>()
-    if (LocalStorage.isset("archiveList")) {
-        list = (LocalStorage.restore<MutableList<Item>>("archiveList"))?.toMutableStateList() ?: list
-    }
+    val list = LocalArchiveRepository.load()
 
     val archiveList by remember {
         mutableStateOf(list)
     }
 
-    val addToArchiveList: (Item) -> Unit = { item ->
+    val addToArchiveList: (ItemModel) -> Unit = { item ->
         archiveList.add(item)
-        LocalStorage.save<MutableList<Item>>("archiveList", archiveList.toMutableList())
+        LocalArchiveRepository.save(archiveList)
     }
-    val rmFromArchiveList: (Item) -> Unit = { item ->
+    val rmFromArchiveList: (ItemModel) -> Unit = { item ->
         archiveList.remove(item)
-        LocalStorage.save<MutableList<Item>>("archiveList", archiveList.toMutableList())
+        LocalArchiveRepository.save(archiveList)
     }
 
     // Navigation controller to manage navigation between screens
@@ -112,7 +110,7 @@ fun BottomNavigationBar(
             modifier = Modifier.padding(paddingValues),
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(minHeap, addToArchiveList, releaseDate, aiViewModel)
+                HomeScreen(itemList, addToArchiveList, releaseDate, aiViewModel)
             }
             composable(Screen.Archive.route) {
                 ArchiveScreen(archiveList, rmFromArchiveList)

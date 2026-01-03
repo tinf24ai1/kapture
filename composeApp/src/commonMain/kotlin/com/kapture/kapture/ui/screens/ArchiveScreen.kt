@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.kapture.kapture.storage.Item
+import com.kapture.kapture.storage.ItemModel
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
@@ -41,7 +41,7 @@ import kotlinx.datetime.format.char
 
 // Single Archived Element in the Archive Screen
 @Composable
-fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
+fun ArchivedElement(itemModel: ItemModel, rmFromArchiveList : (ItemModel) -> Unit) {
     Card(
         modifier = Modifier.fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
@@ -52,13 +52,13 @@ fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
             modifier = Modifier.padding(24.dp)
         ) {
             Text(
-                text = item.title,
+                text = itemModel.title,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = item.idea,
+                text = itemModel.idea,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -72,7 +72,7 @@ fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
                     onClick = {},
                     label = {
                         Text(
-                            text = item.releaseDate.format(LocalDate.Format {
+                            text = itemModel.releaseDate.format(LocalDate.Format {
                                 dayOfMonth()
                                 chars(". ")
                                 monthName(MonthNames.ENGLISH_FULL)
@@ -95,7 +95,7 @@ fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
                 Spacer(Modifier.width(6.dp))
                 AssistChip(
                     onClick = {
-                        rmFromArchiveList(item)
+                        rmFromArchiveList(itemModel)
                     },
                     label = { Icon(Icons.Rounded.Delete, Icons.Rounded.Delete::class.qualifiedName) },
                     border = AssistChipDefaults.assistChipBorder(false),
@@ -113,7 +113,7 @@ fun ArchivedElement(item: Item, rmFromArchiveList : (Item) -> Unit) {
 
 // Archive Screen displaying list of archived Items
 @Composable
-fun ArchiveScreen(items : SnapshotStateList<Item>, rmFromArchiveList : (Item) -> Unit) {
+fun ArchiveScreen(itemModels : SnapshotStateList<ItemModel>, rmFromArchiveList : (ItemModel) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -126,13 +126,13 @@ fun ArchiveScreen(items : SnapshotStateList<Item>, rmFromArchiveList : (Item) ->
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
-            if (items.isNotEmpty()) {
+            if (itemModels.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                     contentPadding = PaddingValues(24.dp)
                 ) {
-                    items(items) { item ->
+                    items(itemModels) { item ->
                         ArchivedElement(item, rmFromArchiveList)
                     }
                 }
