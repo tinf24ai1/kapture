@@ -9,14 +9,17 @@ import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.createReminderScheduler
 import com.kapture.kapture.storage.Item
@@ -26,6 +29,7 @@ import com.kapture.kapture.ui.components.DisplayIdea
 import com.kapture.kapture.ui.components.ToastHost
 import kapture.composeapp.generated.resources.Res
 import kapture.composeapp.generated.resources.gumballmachine
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -33,8 +37,9 @@ import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.painterResource
 
 // Home Screen displaying the main interface with options to add and retrieve Ideas
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate) {
+fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate: (Int, Int) -> LocalDate, aiViewModel: AIViewModel) {
     var toastMessage by remember { mutableStateOf<String?>(null) }
     val clearToastMessage: () -> Unit = {
         toastMessage = null
@@ -43,9 +48,13 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
         toastMessage = message
     }
 
-    var showDialog by remember {
+    var showSheet by remember {
         mutableStateOf(false)
     }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val scope = rememberCoroutineScope()
 
     var releasedItemState by remember { mutableStateOf<Item?>(null) }
     fun changeReleasedItemState(state: Item?) {
@@ -54,36 +63,48 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
 
     val scheduler = remember { createReminderScheduler() }
 
-    if (showDialog) {
-        Dialog(
-            onDismissRequest = { showDialog = false }
+    // State for AI Assistant (IdeaState)
+    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
+
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                aiViewModel.resetState()
+                showSheet = false
+            },
+            sheetState = sheetState
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .wrapContentHeight(),
-                shape = MaterialTheme.shapes.large,
-                tonalElevation = 8.dp
-            ) {
-                AddIdeaForms(
-                    onSubmit = { title, releaseDate, idea, startDate, endDate ->
-                        Logger.d(
-                            "Reminder",
-                            "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
-                        )
 
-                        val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
-                        minHeap.add(newItem)
+            AddIdeaForms(
+                onSubmit = { title, releaseDate, idea, startDate, endDate ->
+                    Logger.d(
+                        "Reminder",
+                        "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
+                    )
 
-                        scheduler.schedule(newItem, hour = 10, minute = 0)
+                    val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
+                    minHeap.add(newItem)
 
-                        showDialog = false
-                    },
-                    displayToastMessage = displayToastMessage,
-                    releaseDate = releaseDate,
-                    onCancel = { showDialog = false }
-                )
-            }
+                    scheduler.schedule(newItem, hour = 10, minute = 0)
+
+                    aiViewModel.resetState()
+                    showSheet = false
+                },
+                displayToastMessage = displayToastMessage,
+                releaseDate = releaseDate,
+                onCancel = {
+                    scope.launch {
+                        sheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            aiViewModel.resetState()
+                            showSheet = false
+                        }
+                    }
+                },
+                aiViewModel = aiViewModel,
+                state = state
+            )
         }
     }
 
@@ -151,11 +172,11 @@ fun HomeScreen(minHeap : MinHeap, addToArchiveList: (Item) -> Unit, releaseDate:
                             }
                         },
                     ) {
-                        Icon(Icons.Rounded.Casino, Icons.Rounded.Rotate90DegreesCw::class.qualifiedName)
+                        Icon(Icons.Rounded.Casino, Icons.Rounded.Casino::class.qualifiedName)
                     }
                     FloatingActionButton(
                         onClick = {
-                            showDialog = !showDialog
+                            showSheet = !showSheet
                         },
                     ) {
                         Icon(Icons.Rounded.Add, Icons.Rounded.Add::class.qualifiedName)

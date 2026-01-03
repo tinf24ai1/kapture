@@ -9,6 +9,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.kapture.kapture.ui.components.BottomNavigationBar
 import com.kapture.kapture.ui.components.NotificationsDeniedDialog
 import androidx.compose.runtime.remember
+import com.kapture.kapture.ai.AIService
+import com.kapture.kapture.ai.AIViewModel
+
+// Google Gemini API Key for AI services
+const val API_KEY = "YOUR_API_KEY_GOES_HERE"
 
 @Composable
 @Preview
@@ -25,6 +30,10 @@ fun App(
         heap
     }
 
+    val aiService = AIService(API_KEY)
+
+    val aiViewModel = AIViewModel(aiService)
+
     MaterialTheme {
         NotificationsDeniedDialog(
             visible = showPermissionHintDialog,
@@ -33,6 +42,7 @@ fun App(
 
         BottomNavigationBar(
             minHeap = minHeap,
+            aiViewModel = aiViewModel
         )
     }
 }
