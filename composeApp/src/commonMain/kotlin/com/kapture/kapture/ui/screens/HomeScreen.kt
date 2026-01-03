@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kapture.kapture.ai.AIViewModel
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.createReminderScheduler
@@ -79,8 +80,8 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                         "[AddIdea] new idea: '$title' - releaseDate=$releaseDate)"
                     )
 
-                    val newItem = Item(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
-                    minHeap.add(newItem)
+                    val newItem = ItemModel(title = title, releaseDate = releaseDate, idea = idea, startDate = startDate, endDate = endDate)
+                    itemList.add(newItem)
 
                     scheduler.schedule(newItem, hour = 10, minute = 0)
 
