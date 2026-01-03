@@ -23,6 +23,7 @@ object LocalStorage {
             Logger.d("LocalStorage", "Saved key='$key'")
         } catch (e: Exception){
             Logger.e("LocalStorage", "Error saving key='$key': ${e.message}")
+            throw Exception(e)
         }
     }
 

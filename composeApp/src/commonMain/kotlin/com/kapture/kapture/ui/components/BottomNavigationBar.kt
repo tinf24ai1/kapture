@@ -28,6 +28,7 @@ import com.kapture.kapture.storage.LocalStorage
 import com.kapture.kapture.ui.screens.ArchiveScreen
 import com.kapture.kapture.ui.screens.HomeScreen
 import com.kapture.kapture.storage.ItemList
+import com.kapture.kapture.storage.LocalArchiveRepository
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -52,10 +53,7 @@ fun BottomNavigationBar(
     }
 
     // Restore archived items from LocalStorage
-    var list = mutableStateListOf<ItemModel>()
-    if (LocalStorage.isset("archiveList")) {
-        list = (LocalStorage.load<MutableList<ItemModel>>("archiveList"))?.toMutableStateList() ?: list
-    }
+    val list = LocalArchiveRepository.load()
 
     val archiveList by remember {
         mutableStateOf(list)
@@ -63,11 +61,11 @@ fun BottomNavigationBar(
 
     val addToArchiveList: (ItemModel) -> Unit = { item ->
         archiveList.add(item)
-        LocalStorage.save<MutableList<ItemModel>>("archiveList", archiveList.toMutableList())
+        LocalArchiveRepository.save(archiveList)
     }
     val rmFromArchiveList: (ItemModel) -> Unit = { item ->
         archiveList.remove(item)
-        LocalStorage.save<MutableList<ItemModel>>("archiveList", archiveList.toMutableList())
+        LocalArchiveRepository.save(archiveList)
     }
 
     // Navigation controller to manage navigation between screens
