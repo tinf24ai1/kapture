@@ -243,7 +243,7 @@ fun AddIdeaForms(
                     )
                     displayToastMessage(toastAddedIdea)
                 },
-                enabled = (title.trim() != "" && desc.trim() != ""),
+                enabled = (title.trim() != "" && desc.trim() != "" && state != IdeaState.Loading),
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.Check, Icons.Rounded.Check::class.qualifiedName)
@@ -254,6 +254,7 @@ fun AddIdeaForms(
                     setAiErrorMessage("")
                     onCancel()
                 },
+                enabled = (state != IdeaState.Loading),
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.Cancel, Icons.Rounded.Cancel::class.qualifiedName)

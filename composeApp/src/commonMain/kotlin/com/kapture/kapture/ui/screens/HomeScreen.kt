@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kapture.kapture.ai.AIViewModel
+import com.kapture.kapture.ai.IdeaState
 import com.kapture.kapture.logger.Logger
 import com.kapture.kapture.reminder.createReminderScheduler
 import com.kapture.kapture.storage.ItemModel
@@ -51,8 +52,13 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
     var showSheet by remember {
         mutableStateOf(false)
     }
+
+    // State for AI Assistant (IdeaState)
+    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
+
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
+        confirmValueChange = { _ -> state != IdeaState.Loading }
     )
     val scope = rememberCoroutineScope()
 
@@ -63,8 +69,6 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
 
     val scheduler = remember { createReminderScheduler() }
 
-    // State for AI Assistant (IdeaState)
-    val state by aiViewModel.uiState.collectAsStateWithLifecycle()
 
     if (showSheet) {
         ModalBottomSheet(
@@ -72,7 +76,10 @@ fun HomeScreen(itemList : ItemList, addToArchiveList: (ItemModel) -> Unit, relea
                 aiViewModel.resetState()
                 showSheet = false
             },
-            sheetState = sheetState
+            sheetState = sheetState,
+            dragHandle = if (state != IdeaState.Loading) {
+                { BottomSheetDefaults.DragHandle() }
+            } else { { } }
         ) {
 
             AddIdeaForms(
